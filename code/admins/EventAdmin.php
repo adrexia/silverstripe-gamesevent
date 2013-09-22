@@ -10,7 +10,7 @@
 	private static $url_segment = 'event';
 	private static $menu_title = 'Event';
 
-	private static $menu_icon = "gameevent/images/pacman.png";
+	private static $menu_icon = "gamesevent/images/pacman.png";
 
 	public function getEditForm($id = null, $fields = null){
 		$form = parent::getEditForm($id, $fields);

@@ -10,6 +10,6 @@
 	private static $url_segment = 'eventarchive';
 	private static $menu_title = 'Events Archive';
 
-	private static $menu_icon = "gameevent/images/ghost.png";
+	private static $menu_icon = "gamesevent/images/ghost.png";
 
 }
