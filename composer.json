@@ -1,5 +1,5 @@
 {
-	"name": "silverstripe/gamesevent",
+	"name": "adrexia/gamesevent",
 	"description": "Provides management interfaces for gaming events",
 	"type": "silverstripe-module",
 	"keywords": ["silverstripe"],
