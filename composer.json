@@ -13,7 +13,6 @@
 	"require":
 	{
 		"silverstripe/framework": "~3.1",
-		"silverstripe/cms": "~3.1",
-		"ajshort/silverstripe-memberprofiles": "dev-3.1"
+		"silverstripe/cms": "~3.1"
 	}
 }
