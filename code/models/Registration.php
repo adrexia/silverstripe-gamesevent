@@ -2,7 +2,14 @@
 
 class Registration extends DataObject {
 	private static $db = array(
-
+		'AttendingWholeEvent'=>'Boolean', 
+		'AttendingTheseSessions'=>'Varchar(255)', //only show these if whole event is not checked
+		'PlayWith'=>'Varchar(255)',
+		'NotPlayWith'=>'Varchar(255)',
+		'Meals'=>"Enum('No, Yes')",
+		'SpecialDietryInfo'=>'Text',
+		'Accommodation'=>'Boolean',
+		'ExtraDetail'=>'Text'
 	);
 
 	private static $has_one = array(
@@ -12,7 +19,6 @@ class Registration extends DataObject {
 
 	private static $has_many = array(
 		'Games'=>'PlayerGame'
-
 	);
 
 	private static $summary_fields = array(
@@ -56,6 +62,8 @@ class Registration extends DataObject {
 
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
+		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
+		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
 
 		
 		return $fields;

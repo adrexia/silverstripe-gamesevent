@@ -37,6 +37,8 @@ class PlayerGame extends DataObject {
 
 	function getCMSFields() {
 		$fields = parent::getCMSFields();
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
 
 		$fields->removeByName('ParentID');
 

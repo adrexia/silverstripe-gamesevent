@@ -5,7 +5,10 @@ class Event extends DataObject {
 	private static $db = array(
 		'Title' => 'Varchar(255)',
 		'NumberOfSessions'=>'Int',
-		'PreferencesPerSession'=>'Int'
+		'PreferencesPerSession'=>'Int',
+		'MealOption'=>'Boolean',
+		'Accommodation'=>'Int'
+
 	);
 
 	private static $has_one = array(
@@ -13,7 +16,7 @@ class Event extends DataObject {
 	);
 
 	private static $has_many = array(
-		'Games'=>'Games',
+		'Games'=>'Game',
 		'Registrations'=>'Registration'
 	);
 
