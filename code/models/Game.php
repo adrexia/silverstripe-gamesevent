@@ -57,9 +57,15 @@ class Game extends DataObject {
 			$event = Event::get()->byID($this->ParentID);
 		}
 
-		$parent = new DropdownField('ParentID', 'Event', Event::get()->map('ID','Title'), $current);
+		$parent = new DropdownField(
+			'ParentID',
+			'Event',
+			Event::get()->map('ID','Title'),
+			$current
+		);
+
 		$fields->insertAfter($parent, 'Details');
-		
+
 		$sessions = array();
 		for ($i = 1; $i <= $event->NumberOfSessions; $i++){
 			array_push($sessions, $i);
@@ -69,10 +75,12 @@ class Game extends DataObject {
 		$session->setEmptyString(' ');
 		$fields->insertAfter($session, 'Title');
 
-		$fields->insertAfter($member = new DropdownField(
-					'FacilitatorID', 
-					'Facilitator', 
-					Member::get()->map('ID', 'FirstName')), 'Session');
+		$fields->insertAfter(
+		$member = new DropdownField(
+			'FacilitatorID',
+			'Facilitator',
+			Member::get()->map('ID', 'FirstName')),
+		'Session');
 
 		$member->setEmptyString(' ');
 

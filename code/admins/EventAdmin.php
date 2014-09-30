@@ -1,12 +1,12 @@
 <?php
 /*
- * Graphical interface for creating basic flowcharts
- *
- */
+* Admin for events
+*
+*/
 
- class EventAdmin extends ModelAdmin {
+class EventAdmin extends ModelAdmin {
 
- 	private static $managed_models = array('Game', 'Registration');
+	private static $managed_models = array('Game', 'Registration');
 	private static $url_segment = 'event';
 	private static $menu_title = 'Event';
 
@@ -29,7 +29,4 @@
 
 		return $form;
 	}
-
-
-
- }
+}

@@ -25,7 +25,10 @@ class Event extends DataObject {
 		'NumberOfSessions' => 'Number Of Sessions',
 	);
 
-	private static $defaults = array("NumberOfSessions" => 1, "PreferencesPerSession" => 1);
+	private static $defaults = array(
+		"NumberOfSessions" => 1,
+		"PreferencesPerSession" => 1
+	);
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
