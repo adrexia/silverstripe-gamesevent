@@ -9,7 +9,6 @@ class PlayerGame extends DataObject {
 	private static $has_one = array(
 		'Game'=>'Game',
 		'Parent' => 'Registration'
-		
 	);
 
 	private static $has_many = array(
@@ -27,29 +26,35 @@ class PlayerGame extends DataObject {
 		 return $this->Game()->Title;
 	}
 
-	function getMemberName(){
+	public function getMemberName(){
 		return $this->Member()->FirstName . '' . $this->Member()->Surname;
 	}
 
-	function getMemberEmail(){
+	public function getMemberEmail(){
 		return $this->Member()->Email;
 	}
 
-	function getCMSFields() {
+	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
 		$fields->removeByName('ParentID');
 
-		if($this->ParentID < 1){
+		if($this->Parent()->ParentID < 1){
 			$event = Event::get()->byID($current);
-		}else{
-			$event = Event::get()->byID($this->ParentID);
+		} else {
+			$event = Event::get()->byID($this->Parent()->ParentID);
+		}
+
+		if($event){
+			$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
+		} else {
+			$prefNum = 2;
 		}
 
 		$pref = array();
-		for ($i = 1; $i <= $event->PreferencesPerSession; $i++){ 
+		for ($i = 1; $i <= $prefNum; $i++){ 
 			array_push($pref, $i);
 		}
 
@@ -59,7 +64,6 @@ class PlayerGame extends DataObject {
 
 		$fields->insertAfter(new TextareaField('CharacterPreference','Character Preference'), 'Preference');
 
-		
 		return $fields;
 	}
 

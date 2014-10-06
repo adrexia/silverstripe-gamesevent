@@ -4,10 +4,14 @@ class Game extends DataObject {
 	private static $db = array(
 		'Title'=>'Varchar(255)',
 		'Session'=>'Int',
-		'Brief'=>'Text',
-		'Details'=>'HTMLText',
+		'NumPlayers'=>'Varchar(255)',
+		'Restriction'=>'Varchar(255)',
+		'Genre'=>'Varchar(255)',
+		'Costuming'=>'Text',
 		'Status'=>'Boolean',
 		'FacilitatorID' => 'Int',
+		'Brief'=>'Text',
+		'Details'=>'HTMLText'
 	);
 
 	private static $has_one = array(
@@ -15,7 +19,7 @@ class Game extends DataObject {
 	);
 
 	private static $many_many = array(
-		'Players'=>'Registration'
+		'Players'=>'Member'
 	);
 
 	private static $summary_fields = array(
@@ -67,8 +71,10 @@ class Game extends DataObject {
 		$fields->insertAfter($parent, 'Details');
 
 		$sessions = array();
-		for ($i = 1; $i <= $event->NumberOfSessions; $i++){
-			array_push($sessions, $i);
+		if($event){
+			for ($i = 1; $i <= $event->NumberOfSessions; $i++){
+				$sessions[$i] = $i;
+			}
 		}
 
 		$session = new DropdownField('Session', 'Session', $sessions);
@@ -106,6 +112,20 @@ class Game extends DataObject {
 		return Member::get()->byID($this->FacilitatorID)->Email;
 	}
 
+	/*
+	 * Returns the url suffix to append to teh current controllors url
+	 */
+	public function Link($action = 'show') {
+		return Controller::join_links($action, $this->ID);
+	}
+
+	/**
+	 * Returns the round title. 
+	 * @return string
+	 */
+	public function getRoundTitle() {
+		return 'Round ' . $this->Session;
+	}
 
 	public function canCreate($member = null) {
 		return $this->Parent()->canCreate($member);

@@ -6,10 +6,11 @@ class Registration extends DataObject {
 		'AttendingTheseSessions'=>'Varchar(255)', //only show these if whole event is not checked
 		'PlayWith'=>'Varchar(255)',
 		'NotPlayWith'=>'Varchar(255)',
-		'Meals'=>"Enum('No, Yes')",
+		'Meals'=>"Boolean",
 		'SpecialDietryInfo'=>'Text',
 		'Accommodation'=>'Boolean',
-		'ExtraDetail'=>'Text'
+		'ExtraDetail'=>'Text',
+		'PublicFieldsRaw' => 'Text'
 	);
 
 	private static $has_one = array(
@@ -30,7 +31,7 @@ class Registration extends DataObject {
 	);
 
 	public function getTitle(){
-		 return $this->getMemberName();
+		return $this->getMemberName();
 	}
 
 	public function getCurrentDisplayFields(){
@@ -45,29 +46,38 @@ class Registration extends DataObject {
 		if(PlayerGame::get()){
 
 			return PlayerGame::get()->filter("ParentID", $this->ID)->Count();
-		}else{
+		} else {
 			return "none";
 		}
-
 	}
 
-	function getMemberName(){
+	public function getMemberName(){
 		return $this->Member()->FirstName . '' . $this->Member()->Surname;
 	}
 
-	function getMemberEmail(){
+	public function getMemberEmail(){
 		return $this->Member()->Email;
 	}
 
 
-	function getCMSFields() {
+	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
 		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
-
+		$fields->removeByName('PublicFieldsRaw');
 		
 		return $fields;
 	}
+
+
+	public function getPublicFields() {
+		return (array) unserialize($this->owner->getField('PublicFieldsRaw'));
+	}
+
+	public function setPublicFields($fields) {
+		$this->owner->setField('PublicFieldsRaw', serialize($fields));
+	}
+
 
 	public function canCreate($member = null) {
 		return $this->Parent()->canCreate($member);
