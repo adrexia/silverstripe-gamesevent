@@ -33,6 +33,9 @@ class Event extends DataObject {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->removeByName('ParentID');
+		$accom = $fields->dataFieldByName('Accommodation');
+		$accom->setRightTitle('Number of nights accommodation offered, or 0 if not applicable');
+		$accom->setTitle("Accommodation (Num. nights)");
 		return $fields;
 	}
 
