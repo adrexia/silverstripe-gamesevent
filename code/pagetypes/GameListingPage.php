@@ -11,10 +11,10 @@ class GameListingPage extends Page {
 		$pages = array();
 		
 		while(
-			$page  
- 			&& (!$maxDepth || count($pages) < $maxDepth) 
- 			&& (!$stopAtPageType || $page->ClassName != $stopAtPageType)
- 		) {
+			$page
+			&& (!$maxDepth || count($pages) < $maxDepth) 
+			&& (!$stopAtPageType || $page->ClassName != $stopAtPageType)
+		) {
 			if($showHidden || $page->ShowInMenus || ($page->ID == $this->ID)) { 
 				$pages[] = $page;
 			}
