@@ -216,15 +216,27 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 		$siteConfig = SiteConfig::current_site_config();
 		$event = $siteConfig->CurrentEvent();
 
-		$fields->push(new CheckboxField('AttendingWholeEvent', 'Attending whole event'));
-		$fields->push(new TextField('AttendingTheseSessions', '...or Attending these rounds'));
+		$attending = new CompositeField(array(
+			new CheckboxField('AttendingWholeEvent', 'Attending whole event'),
+			new TextField('AttendingTheseSessions', '...or Attending these rounds')
+		));
 
-		$fields->push(new TextField('PlayWith', "I want to play with"));
-		$fields->push(new TextField('NotPlayWith', "I'd rather not play with"));
+		$fields->push($attending);
+
+		$playing = new CompositeField(array(
+			new TextField('PlayWith', "I want to play with"),
+			new TextField('NotPlayWith', "I'd rather not play with")
+		));
+
+		$fields->push($playing);
 
 		if($event->MealOption) {
-			$fields->push(new CheckboxField('Meals', 'I want meals provided'));
-			$fields->push(new TextField('SpecialDietryInfo'));
+			$meals = new CompositeField(array(
+				new CheckboxField('Meals', 'I want meals provided'),
+				new TextField('SpecialDietryInfo')
+			));
+			
+			$fields->push($meals);
 		}
 
 		if($event->Accommodation) {
