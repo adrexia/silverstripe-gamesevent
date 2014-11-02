@@ -275,7 +275,7 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			new FieldList(
 				new FormAction('save', _t('MemberProfiles.SAVE', 'Save'))
 			),
-			new MemberProfileValidator($this->Fields(), Member::currentUser())
+			new MemberProfileValidator($this->Fields())
 		);
 		$this->extend('updateProfileForm', $form);
 		return $form;
