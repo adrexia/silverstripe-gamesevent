@@ -18,8 +18,8 @@ class Game extends DataObject {
 		'Parent' => 'Event'
 	);
 
-	private static $many_many = array(
-		'Players'=>'Member'
+	private static $has_many = array(
+		'Players'=>'PlayerGame'
 	);
 
 	private static $summary_fields = array(
@@ -87,13 +87,19 @@ class Game extends DataObject {
 			'Facilitator',
 			Member::get()->map('ID', 'FirstName')),
 		'Session');
-
 		$member->setEmptyString(' ');
 
 		$status = array(0=>"Pending", 1=>"Accepted");
-
 		$fields->insertBefore(new OptionsetField('Status', 'Status', $status), 'Title');
 
+		$gridField = $fields->dataFieldByName("Players");
+
+		if ($gridField) {
+			$gridField->getConfig()->getComponentByType('GridFieldDataColumns')->setDisplayFields(
+				singleton("PlayerGame")->getCurrentDisplayFields()
+			);
+		}
+		
 		return $fields;
 	}
 

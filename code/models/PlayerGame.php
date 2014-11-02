@@ -3,7 +3,8 @@
 class PlayerGame extends DataObject {
 	private static $db = array(
 		'Preference'=>'Int',
-		'CharacterPreference'=>'Text'
+		'Character'=>'Text',
+		'Status'=>'Boolean'
 	);
 
 	private static $has_one = array(
@@ -17,21 +18,32 @@ class PlayerGame extends DataObject {
 
 	private static $summary_fields = array(
 		'Game.Title'=>'Game',
-		'Preference'=>'Int',
-		'CharacterPreference'=>'Character',
+		'Preference'=>'Preference',
+		'Character'=>'Character',
 		'Game.Session'=>'Session'
 	);
 
-	public function getTitle(){
+	public function getTitle() {
 		 return $this->Game()->Title;
 	}
 
-	public function getMemberName(){
-		return $this->Member()->FirstName . '' . $this->Member()->Surname;
+	public function getMemberName() {
+		return $this->Parent()->Member()->FirstName . '' . $this->Parent()->Member()->Surname;
 	}
 
-	public function getMemberEmail(){
-		return $this->Member()->Email;
+	public function getMemberEmail() {
+		return $this->Parent()->Member()->Email;
+	}
+
+	public function getCurrentDisplayFields() {
+		return array(
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'Preference'=>'Preference Number',
+			'Character'=>'Character',
+			'Game.Session'=>'Session',
+			'Status'=>'Status'
+		);
 	}
 
 	public function getCMSFields() {
@@ -39,13 +51,14 @@ class PlayerGame extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		$fields->removeByName('ParentID');
+
 
 		if($this->Parent()->ParentID < 1){
 			$event = Event::get()->byID($current);
 		} else {
 			$event = Event::get()->byID($this->Parent()->ParentID);
 		}
+		
 
 		if($event){
 			$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
@@ -62,7 +75,15 @@ class PlayerGame extends DataObject {
 		$preference->setEmptyString(' ');
 		$fields->insertAfter($preference, 'GameID');
 
-		$fields->insertAfter(new TextareaField('CharacterPreference','Character Preference'), 'Preference');
+		$fields->insertAfter(new TextareaField('Character','Character Preference'), 'Preference');
+
+		$status = array(0=>"Pending/Declined", 1=>"Accepted");
+		$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Character');
+
+		$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
+		$player = new DropdownField('ParentID', 'Player', $reg);
+		$player->setEmptyString(' ');
+		$fields->insertAfter($player, 'Status');
 
 		return $fields;
 	}
