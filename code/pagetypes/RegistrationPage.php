@@ -299,6 +299,7 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 		$form->saveInto($member);
 		$form->saveInto($registration);
 
+		$registration->MemberID = $member->ID;
 		$registration->ParentID = $siteConfig->CurrentEventID;
 
 		try {
