@@ -275,7 +275,7 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			new FieldList(
 				new FormAction('save', _t('MemberProfiles.SAVE', 'Save'))
 			),
-			new MemberProfileValidator($this->Fields())
+			new MemberProfileValidator($this->Fields(), Member::currentUser())
 		);
 		$this->extend('updateProfileForm', $form);
 		return $form;
@@ -286,13 +286,20 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	 */
 	public function save(array $data, Form $form) {
 		$member = Member::currentUser();
+		$siteConfig = SiteConfig::current_site_config();
 		$registration = $this->getRegistration($member->ID);
+
+		if(!$registration){
+			$registration = Registration::create();
+		}
 
 		$groupIds = $this->getSettableGroupIdsFrom($form, $member);
 		$member->Groups()->setByIDList($groupIds);
 
 		$form->saveInto($member);
 		$form->saveInto($registration);
+
+		$registration->ParentID = $siteConfig->CurrentEventID;
 
 		try {
 			$member->write();
