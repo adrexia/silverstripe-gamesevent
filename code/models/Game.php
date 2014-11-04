@@ -23,10 +23,9 @@ class Game extends DataObject {
 	);
 
 	private static $summary_fields = array(
-		'MemberName' => 'Facilitator',
-		'MemberEmail' => 'Email',
 		'Title'=>'Title',
 		'Brief.FirstSentence'=>'Brief',
+		'MemberName' => 'Facilitator',
 		'Session'=>'Session',
 		'Status.Nice'=>'Accepted',
 		'Parent.Title' => 'Event'
@@ -38,10 +37,9 @@ class Game extends DataObject {
 
 	public function getCurrentDisplayFields(){
 		return array(
-			'MemberName' => 'Facilitator',
-			'MemberEmail' => 'Email',
 			'Title'=>'Title',
 			'Brief.FirstSentence'=>'Brief',
+			'MemberName' => 'Facilitator',
 			'Session'=>'Session',
 			'Status.Nice'=>'Accepted'
 		);
