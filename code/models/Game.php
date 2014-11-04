@@ -26,10 +26,9 @@ class Game extends DataObject {
 		'MemberName' => 'Facilitator',
 		'MemberEmail' => 'Email',
 		'Title'=>'Title',
+		'Brief.FirstSentence'=>'Brief',
 		'Session'=>'Session',
-		'Brief'=>'Brief',
-		'Details'=>'Details',
-		'Status'=>'Status',
+		'Status.Nice'=>'Accepted',
 		'Parent.Title' => 'Event'
 	);
 
@@ -42,10 +41,9 @@ class Game extends DataObject {
 			'MemberName' => 'Facilitator',
 			'MemberEmail' => 'Email',
 			'Title'=>'Title',
+			'Brief.FirstSentence'=>'Brief',
 			'Session'=>'Session',
-			'Brief'=>'Brief',
-			'Details.NoHTML'=>'Details',
-			'Status'=>'Status'
+			'Status.Nice'=>'Accepted'
 		);
 	}
 
@@ -108,7 +106,7 @@ class Game extends DataObject {
 			return 'No name';
 		}
 		$fac = Member::get()->byID($this->FacilitatorID);
-		return $fac->FirstName . '' . $fac->Surname;
+		return $fac->FirstName . ' ' . $fac->Surname;
 	}
 
 	public function getMemberEmail(){
