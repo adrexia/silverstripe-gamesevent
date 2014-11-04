@@ -52,7 +52,7 @@ class Registration extends DataObject {
 	}
 
 	public function getMemberName(){
-		return $this->Member()->FirstName . '' . $this->Member()->Surname;
+		return $this->Member()->FirstName . ' ' . $this->Member()->Surname;
 	}
 
 	public function getMemberEmail(){

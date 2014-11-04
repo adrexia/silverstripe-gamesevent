@@ -10,6 +10,7 @@ class Game extends DataObject {
 		'Costuming'=>'Text',
 		'Status'=>'Boolean',
 		'FacilitatorID' => 'Int',
+		'FacilitatorText'=>'Text',
 		'Brief'=>'Text',
 		'Details'=>'HTMLText'
 	);
@@ -84,6 +85,11 @@ class Game extends DataObject {
 			Member::get()->map('ID', 'FirstName')),
 		'Session');
 		$member->setEmptyString(' ');
+
+		$fields->insertAfter(
+			new TextField('FacilitatorText', 'Or enter facilitator name(s)'),
+			'FacilitatorID'
+		);
 
 		$status = array(0=>"Pending", 1=>"Accepted");
 		$fields->insertBefore(new OptionsetField('Status', 'Status', $status), 'Title');
