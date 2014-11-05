@@ -50,18 +50,36 @@ class GameListingPage_Controller extends Page_Controller {
 		'show'
 	);
 
-	public function FilteredGames($pageSize = 30){
+
+	public function getCurrentGames(){
 		$siteConfig = SiteConfig::current_site_config();
 
 		$items =  Game::get()->filter(array(
 			'Status'=> true,
 			'ParentID'=>$siteConfig->CurrentEventID
 		));
+		
+		return $items;
+	}
+
+	public function FilteredGames($pageSize = 30){
+		$items = $this->getCurrentGames();
 		$items->sort('Title','ASC');
+
 		// Apply pagination
 		$list = new AjaxPaginatedList($items, $this->request);
 		$list->setPageLength($pageSize);
 		return $list;
+	}
+
+	/**
+	 * Returns all modules, sorted by their title.
+	 * @return GroupedList
+	 */
+	public function getGroupedGames() {
+		$items = $this->getCurrentGames();
+
+		return GroupedList::create($items->sort('Genre'));
 	}
 
 	public function show($request) {
