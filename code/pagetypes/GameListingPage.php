@@ -57,7 +57,7 @@ class GameListingPage_Controller extends Page_Controller {
 			'Status'=> true,
 			'ParentID'=>$siteConfig->CurrentEventID
 		));
-		$items->sort('ASC');
+		$items->sort('Title','ASC');
 		// Apply pagination
 		$list = new AjaxPaginatedList($items, $this->request);
 		$list->setPageLength($pageSize);
