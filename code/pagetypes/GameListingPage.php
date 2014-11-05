@@ -50,7 +50,7 @@ class GameListingPage_Controller extends Page_Controller {
 		'show'
 	);
 
-	public function getGames($pageSize = 30){
+	public function FilteredGames($pageSize = 30){
 		$siteConfig = SiteConfig::current_site_config();
 
 		$items =  Game::get()->filter(array(

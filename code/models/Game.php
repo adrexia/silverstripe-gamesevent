@@ -36,6 +36,8 @@ class Game extends DataObject {
 
 	private static $defaults = array("FacilitatorID" => 0);
 
+	private static $default_sort = "Title ASC";
+
 	public function getCurrentDisplayFields(){
 		return array(
 			'Title'=>'Title',
