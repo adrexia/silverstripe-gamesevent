@@ -58,7 +58,7 @@ class GameListingPage_Controller extends Page_Controller {
 			'Status'=> true,
 			'ParentID'=>$siteConfig->CurrentEventID
 		));
-		
+
 		return $items;
 	}
 
@@ -76,10 +76,10 @@ class GameListingPage_Controller extends Page_Controller {
 	 * Returns all modules, sorted by their title.
 	 * @return GroupedList
 	 */
-	public function getGroupedGames() {
+	public function getGroupedGames($sort = 'Session') {
 		$items = $this->getCurrentGames();
 
-		return GroupedList::create($items->sort('Genre'));
+		return GroupedList::create($items->sort($sort));
 	}
 
 	public function show($request) {
