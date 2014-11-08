@@ -131,6 +131,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$genres = $this->getGroupedGames('Genre');
 
 		$fields->push(new TextField('Title'));
+		$fields->push(new TextField('Restriction', 'Restriction (R18, PG, etc)'));
 
 		// tag input field
 		$fields->push($tagfield = new TextField('Genre', 'Genres'));
@@ -139,7 +140,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		// hidden field for all current genres
 		$fields->push(new LiteralField('GenreList', $this->renderGenreList($genres)));
 
-		$fields->push(new TextField('Restriction', 'Restriction (R18, PG, etc)'));
+		
 
 		$briefEditor = new TextAreaField('Brief', 'Abstract');
 		$briefEditor->setRows(5);
