@@ -175,13 +175,8 @@ class SubmitGamePage_Controller extends Page_Controller {
 		return $form;
 	}
 
-	/**
-	 * Returns all modules, sorted by their title.
-	 * @return GroupedList
-	 */
-	public function getGroupedGames($sort = 'Session') {
-		$items = singleton('GameListingPage')->getCurrentGames();
-		return GroupedList::create($items->sort($sort));
+	public function getAllTags() {
+		return singleton('GameListingPage_Controller')->getAllTags();
 	}
 
 	/*

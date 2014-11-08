@@ -74,6 +74,27 @@ class GameListingPage_Controller extends Page_Controller {
 		return $list;
 	}
 
+	public function getAllTags() {
+		$games = Game::get();
+
+		$list = array();
+		$result = new ArrayList();
+		foreach ($games as $game){
+			$tags = $game->getGenresArray();
+			for ($i = 0; $i < count($tags); $i++){
+				$list[$tags[$i]] = $tags[$i];
+			}
+		}
+
+		foreach($list as $item) {
+			$result->push(new ArrayData(array(
+				'Title' => $item
+			)));
+		}
+		
+		return $result;
+	}
+
 	/**
 	 * Returns all modules, sorted by their title.
 	 * @return GroupedList

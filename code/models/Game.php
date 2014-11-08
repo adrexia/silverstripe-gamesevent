@@ -107,6 +107,11 @@ class Game extends DataObject {
 		return $fields;
 	}
 
+	public function onBeforeWrite() { 
+		parent::onBeforeWrite(); 
+		$this->Genre = strtolower($this->Genre); 
+	}
+
 	public function getMemberName(){
 		if($this->FacilitatorID < 1){
 			return 'No name';
@@ -127,6 +132,20 @@ class Game extends DataObject {
 				$result->push(new ArrayData(array(
 					'Title' => $genre
 				)));
+			}
+			return $result;
+		}
+
+		return false;
+	}
+
+	public function getGenresArray() {
+		$genres = preg_split("/\s/", $this->Genre); // turn into array
+
+		$result = array();
+		if(count($genres) > 0){
+			foreach($genres as $genre) {
+				$result[] = $genre;
 			}
 			return $result;
 		}
