@@ -109,11 +109,36 @@ class SubmitGamePage_Controller extends Page_Controller {
 		return $form;
 	}
 
+	/**
+	 * Returns all modules, sorted by their title.
+	 * @return GroupedList
+	 */
+	public function getGroupedGames($sort = 'Session') {
+		$items = singleton('GameListingPage')->getCurrentGames();
+		return GroupedList::create($items->sort($sort));
+	}
+
+	/*
+	* Used for autocomplete type functionality when adding genres
+	*/
+	public function renderGenreList(){
+		return $this->customise(array('Name'=>'genre-list'))->renderWith('GenreList');
+	}
+
 	public function GameFields(){
 		$fields = new FieldList();
 
+		$genres = $this->getGroupedGames('Genre');
+
 		$fields->push(new TextField('Title'));
-		$fields->push(new TextField('Genre', 'Genre'));
+
+		// tag input field
+		$fields->push($tagfield = new TextField('Genre', 'Genre'));
+		$tagfield->addExtraClass('tag-field genre');
+
+		// hidden field for all current genres
+		$fields->push(new LiteralField('GenreList', $this->renderGenreList($genres)));
+
 		$fields->push(new TextField('Restriction', 'Restriction (R18, PG, etc)'));
 
 		$briefEditor = new TextAreaField('Brief', 'Abstract');

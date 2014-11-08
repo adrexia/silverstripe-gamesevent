@@ -115,6 +115,25 @@ class Game extends DataObject {
 		return $fac->FirstName . ' ' . $fac->Surname;
 	}
 
+	/*
+	 * Produces an ArrayList of all genres on this object
+	 */
+	public function getGenresList() {
+		$genres = preg_split("/\s/", $this->Genre); // turn into array
+
+		if(count($genres) > 0){
+			$result = new ArrayList();
+			foreach($genres as $genre) {
+				$result->push(new ArrayData(array(
+					'Title' => $genre
+				)));
+			}
+			return $result;
+		}
+
+		return false;
+	}
+
 	public function getMemberEmail(){
 		if($this->FacilitatorID < 1){
 			return 'No email';

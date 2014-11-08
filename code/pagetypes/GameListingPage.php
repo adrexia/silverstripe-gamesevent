@@ -42,15 +42,6 @@ class GameListingPage extends Page {
 		))));
 	}
 
-}
-
-class GameListingPage_Controller extends Page_Controller {
-
-	private static $allowed_actions = array(
-		'show'
-	);
-
-
 	public function getCurrentGames(){
 		$siteConfig = SiteConfig::current_site_config();
 
@@ -61,6 +52,17 @@ class GameListingPage_Controller extends Page_Controller {
 
 		return $items;
 	}
+
+}
+
+class GameListingPage_Controller extends Page_Controller {
+
+	private static $allowed_actions = array(
+		'show'
+	);
+
+
+
 
 	public function FilteredGames($pageSize = 30){
 		$items = $this->getCurrentGames();
