@@ -133,7 +133,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$fields->push(new TextField('Title'));
 
 		// tag input field
-		$fields->push($tagfield = new TextField('Genre', 'Genre'));
+		$fields->push($tagfield = new TextField('Genre', 'Genres'));
 		$tagfield->addExtraClass('tag-field genre');
 
 		// hidden field for all current genres
