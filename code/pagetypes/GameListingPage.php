@@ -86,12 +86,14 @@ class GameListingPage_Controller extends Page_Controller {
 			}
 		}
 
+		asort($list);
+
 		foreach($list as $item) {
 			$result->push(new ArrayData(array(
 				'Title' => $item
 			)));
 		}
-		
+
 		return $result;
 	}
 
