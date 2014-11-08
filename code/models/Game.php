@@ -156,6 +156,25 @@ class Game extends DataObject {
 		return false;
 	}
 
+	public function showEditLink() {
+		$member = Member::currentUser();
+
+		if(!$member){
+			return false;
+		}
+
+		if($this->FacilitatorID === $member->ID || Permission::check('ADMIN')){
+			return true;
+		}
+
+		return false;
+	}
+
+	public function getEditLink() {
+		$submit = SubmitGamePage::get()->First();
+		return $submit->URLSegment . '/edit/' . $this->ID;
+	}
+
 	public function getMemberEmail(){
 		if($this->FacilitatorID < 1){
 			return 'No email';

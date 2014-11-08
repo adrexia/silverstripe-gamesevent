@@ -33,10 +33,48 @@ class SubmitGamePage extends Page {
 class SubmitGamePage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array (
-		'Form',
-		'aftersubmission',
-		'addgamesubmission'
+		'Form' => true,
+		'aftersubmission' => true,
+		'addgamesubmission' => true,
+		'edit' => true
 	);
+
+	/*
+	 * Allow the owners of games to edit games
+	 * If page is reached by non owners, redirect back to the submit form
+	 */
+	public function edit($request) {
+		$params = $request->allParams();
+		$member = Member::currentUser();
+		$game = Game::get()->byID($params['ID']);
+
+		if($game->ID && $member){
+			if($game->FacilitatorID === $member->ID || Permission::check('ADMIN')){ 
+				$form = $this->Form();
+				$form->loadDataFrom($game);
+
+				$data = array (
+					'Title' => 'Edit: ' . $game->Title,
+					'Content' => $this->obj('ProfileContent'),
+					'Form' => $form
+				);
+
+				return $this->customise($data)->renderWith(array('SubmitGamePage_edit', 'SubmitGamePage', 'Page'));
+			} else {
+				$this->redirect($params['URLSegment'].'/');
+			}
+		} else {
+			$this->redirect($params['URLSegment'].'/');
+		}
+	}
+
+	public function getGamesByFacilitator(){
+		$member = Member::currentUser();
+		if(!$member){
+			return false;
+		}
+		return Game::get()->filter('FacilitatorID', $member->ID);
+	}
 
 	/**
 	 * Attempts to save a game 
@@ -47,12 +85,20 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$siteConfig = SiteConfig::current_site_config();
 
 		$member = Member::currentUser();
+		$params = $this->request->allParams();
 
-		$game = Game::create();
-		
+		$fields = $form->Fields();
+		$id = $fields->dataFieldByName('ID')->Value();
+
+		$game = Game::get()->byID($id);
+
+		if(!$game){
+			$game = Game::create();
+		}
+
 		$form->saveInto($game);
 
-		$game->FacilitatorID = $member->ID;
+		$game->FacilitatorID = $game->FacilitatorID ? $game->FacilitatorID : $member->ID;
 		$game->ParentID = $siteConfig->CurrentEventID;
 
 		try {
@@ -130,6 +176,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 
 		$genres = $this->getGroupedGames('Genre');
 
+		$fields->push(new HiddenField('ID'));
 		$fields->push(new TextField('Title'));
 		$fields->push(new TextField('Restriction', 'Restriction (R18, PG, etc)'));
 
@@ -139,8 +186,6 @@ class SubmitGamePage_Controller extends Page_Controller {
 
 		// hidden field for all current genres
 		$fields->push(new LiteralField('GenreList', $this->renderGenreList($genres)));
-
-		
 
 		$briefEditor = new TextAreaField('Brief', 'Abstract');
 		$briefEditor->setRows(5);
