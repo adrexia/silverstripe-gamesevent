@@ -52,7 +52,12 @@ class SubmitGamePage_Controller extends Page_Controller {
 		if($game->ID && $member){
 			if($game->FacilitatorID === $member->ID || Permission::check('ADMIN')){ 
 				$form = $this->Form();
+				$fields = $form->Fields();
 				$form->loadDataFrom($game);
+
+				if($game->Status){
+					$fields->removeByName('Session');
+				}
 
 				$data = array (
 					'Title' => 'Edit: ' . $game->Title,
@@ -189,6 +194,11 @@ class SubmitGamePage_Controller extends Page_Controller {
 	public function GameFields(){
 		$fields = new FieldList();
 
+		// get current event
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
+		$event = Event::get()->byID($current);
+
 		$genres = $this->getGroupedGames('Genre');
 
 		$fields->push(new HiddenField('ID'));
@@ -220,7 +230,18 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$fields->push($costuming);
 
 		$fields->push(new TextField('NumPlayers', 'Number of players'));
-		$fields->push(new NumericField('Session', 'Preferred Session (number)'));
+
+		$sessions = array();
+
+		if($event){
+			for ($i = 1; $i <= $event->NumberOfSessions; $i++){
+				$sessions[$i] = $i;
+			}
+			$session = new DropdownField('Session', 'Preferred Session', $sessions);
+			$session->setEmptyString(' ');
+
+			$fields->push($session);
+		}
 
 		return $fields;
 	}

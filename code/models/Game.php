@@ -56,7 +56,7 @@ class Game extends DataObject {
 
 		if($this->ParentID < 1){
 			$event = Event::get()->byID($current);
-		}else{
+		} else {
 			$event = Event::get()->byID($this->ParentID);
 		}
 
