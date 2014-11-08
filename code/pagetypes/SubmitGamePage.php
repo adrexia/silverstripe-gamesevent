@@ -36,6 +36,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		'Form' => true,
 		'aftersubmission' => true,
 		'addgamesubmission' => true,
+		'afterediting' => true,
 		'edit' => true
 	);
 
@@ -116,8 +117,14 @@ class SubmitGamePage_Controller extends Page_Controller {
 	 */
 	public function addgamesubmission($data, Form $form) {
 		if($game = $this->addGame($form)) {
+			$fields = $form->Fields();
+			$id = $fields->dataFieldByName('ID')->Value();
 
-			return $this->redirect($this->Link('aftersubmission'));
+			if($id){
+				return $this->redirect($this->Link('afterediting'));
+			} else {
+				return $this->redirect($this->Link('aftersubmission'));
+			}
 		} else {
 			return $this->redirectBack();
 		}
@@ -132,6 +139,19 @@ class SubmitGamePage_Controller extends Page_Controller {
 		return array (
 			'Title'   => "Game Submitted!",
 			'Content' => $this->obj('AfterSubmissionContent'),
+			'Form' => false
+		);
+	}
+
+	/**
+	 * Returns the after submission content to the user.
+	 *
+	 * @return array
+	 */
+	public function afterediting() {
+		return array (
+			'Title'   => "Game Edited",
+			'Content' => "Your game has been edited successfully.",
 			'Form' => false
 		);
 	}
