@@ -4,16 +4,11 @@
  */
 class SubmitGamePage extends Page {
 
-	private static $hide_ancestor = "MemberProfilePage";
-
 	private static $icon = "gamesevent/images/addgame.png";
 
 	private static $db = array(
 		'LoggedOutMessage'=>'HTMLText', 
 		'AfterSubmissionContent'=>'HTMLText'
-	);
-	private static $has_one = array(
-		'Game'=> 'Game'
 	);
 
 	public function getCMSFields() {
@@ -85,7 +80,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 	/**
 	 * Attempts to save a game 
 	 *
-	 * @return Member|null
+	 * @return Game|null
 	 */
 	protected function addGame($form) {
 		$siteConfig = SiteConfig::current_site_config();
@@ -162,7 +157,6 @@ class SubmitGamePage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * @uses MemberProfilePage_Controller::getProfileFields
 	 * @return Form
 	 */
 	public function Form() {

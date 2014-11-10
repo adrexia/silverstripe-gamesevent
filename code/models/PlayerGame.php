@@ -12,9 +12,6 @@ class PlayerGame extends DataObject {
 		'Parent' => 'Registration'
 	);
 
-	private static $has_many = array(
-		
-	);
 
 	private static $summary_fields = array(
 		'Game.Title'=>'Game',
@@ -51,14 +48,11 @@ class PlayerGame extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-
-
 		if($this->Parent()->ParentID < 1){
 			$event = Event::get()->byID($current);
 		} else {
 			$event = Event::get()->byID($this->Parent()->ParentID);
 		}
-		
 
 		if($event){
 			$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
