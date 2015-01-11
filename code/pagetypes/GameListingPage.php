@@ -68,7 +68,7 @@ class GameListingPage_Controller extends Page_Controller {
 		$items = $this->getCurrentGames();
 		$items->sort('Title','ASC');
 
-		// Apply pagination
+		// Apply pagination 
 		$list = new AjaxPaginatedList($items, $this->request);
 		$list->setPageLength($pageSize);
 		return $list;

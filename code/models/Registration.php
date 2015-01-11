@@ -65,6 +65,17 @@ class Registration extends DataObject {
 		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
 		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
 		$fields->removeByName('PublicFieldsRaw');
+
+		// Carousel tab
+		$gridField = new GridField(
+			'Games',
+			'Games',
+			$this->Games(),
+			$conf =GridFieldConfig_RelationEditor::create());
+
+		$gridField->setModelClass('PlayerGame');
+		$fields->addFieldToTab('Root.Games', $gridField);
+		$conf->addComponent(new GridFieldDeleteAction(false));
 		
 		return $fields;
 	}

@@ -3,7 +3,6 @@
 class PlayerGame extends DataObject {
 	private static $db = array(
 		'Preference'=>'Int',
-		'Character'=>'Text',
 		'Status'=>'Boolean'
 	);
 
@@ -16,7 +15,6 @@ class PlayerGame extends DataObject {
 	private static $summary_fields = array(
 		'Game.Title'=>'Game',
 		'Preference'=>'Preference',
-		'Character'=>'Character',
 		'Game.Session'=>'Session'
 	);
 
@@ -37,7 +35,6 @@ class PlayerGame extends DataObject {
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Preference'=>'Preference Number',
-			'Character'=>'Character',
 			'Game.Session'=>'Session',
 			'Status'=>'Status'
 		);
@@ -69,10 +66,8 @@ class PlayerGame extends DataObject {
 		$preference->setEmptyString(' ');
 		$fields->insertAfter($preference, 'GameID');
 
-		$fields->insertAfter(new TextareaField('Character','Character Preference'), 'Preference');
-
 		$status = array(0=>"Pending/Declined", 1=>"Accepted");
-		$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Character');
+		$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Preference');
 
 		$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
 		$player = new DropdownField('ParentID', 'Player', $reg);
