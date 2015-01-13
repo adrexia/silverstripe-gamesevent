@@ -61,9 +61,6 @@ class GameListingPage_Controller extends Page_Controller {
 		'show'
 	);
 
-
-
-
 	public function FilteredGames($pageSize = 30){
 		$items = $this->getCurrentGames();
 		$items->sort('Title','ASC');
@@ -74,8 +71,12 @@ class GameListingPage_Controller extends Page_Controller {
 		return $list;
 	}
 
-	public function getAllTags() {
-		$games = Game::get();
+	public function getAllTags($current = false) {
+		if($current){
+			$games = $this->getCurrentGames();
+		} else {
+			$games = Game::get();
+		}
 
 		$list = array();
 		$result = new ArrayList();
