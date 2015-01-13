@@ -202,10 +202,20 @@ class Game extends DataObject {
 	}
 
 	/*
-	 * Returns the url suffix to append to teh current controllors url
+	 * Returns the url suffix to append to the current controllors url
+	 */
+	public function URLSegment($action = 'show') {
+		return Controller::join_links($action, $this->ID);
+	}
+
+	/*
+	 * Returns a full viewable link
 	 */
 	public function Link($action = 'show') {
-		return Controller::join_links($action, $this->ID);
+		$gameListingPage = DataObject::get_one('GameListingPage');
+		if($gameListingPage){
+			return Controller::join_links($gameListingPage->URLSegment, $action, $this->ID);
+		}
 	}
 
 	/**

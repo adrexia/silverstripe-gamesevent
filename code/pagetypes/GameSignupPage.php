@@ -48,13 +48,53 @@ class GameSignupPage extends Page {
 		return $fields;
 	}
 
+	/*
+	 * @return Registration
+	 */
+	public function getCurrentRegistration(){
+		$member = Member::currentUser();
+		$currentID = $this->getCurrentEvent()->ID;
+
+		if(!$currentID || !$member){
+			return false;
+		}
+		
+		$reg = Registration::get()->filter(array(
+			'MemberID' => $member->ID,
+			'ParentID' => $this->getCurrentEvent()->ID,
+		));
+
+		if(!$reg){
+			return false;
+		}
+
+		return $reg->First();
+	}
+
+	/*
+	 * @return Event
+	 */
+	public function getCurrentEvent() {
+		return SiteConfig::current_site_config()->CurrentEvent();
+	}
+
+	/*
+	 * @return String
+	 */
+	public function MenuTitle(){
+		if($this->getCurrentRegistration()->PlayerGames()->Count() > 0){
+			return "Your Games";
+		}
+		return $this->MenuTitle;
+	}
+
 }
 
 class GameSignupPage_Controller extends Page_Controller {
 
 	private static $allowed_actions = array (
 		'Form' => true,
-		'aftersubmission' => true,
+		'yourgames' => true,
 		'addplayergames' => true,
 		'gamesessionasjson' => true
 	);
@@ -80,26 +120,12 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	public function Form() {
 
-		// Check that a user has a current registration and that 
-		// game selection is open before showing form
-		$siteConfig = SiteConfig::current_site_config();
-		$currentID = $siteConfig->getCurrentEventID();
-
-		$member = Member::currentUser();
-
-		if(!$member || !$currentID || (!$this->userGameRegOpen() && !$this->OpenGameReg)){
-			return false;
-		}
-
 		// Attempt to retrieve a current registration for the logged in member
-		$reg = Registration::get('Registration')->filter(array(
-			'MemberID' => $member->ID,
-			'ParentID' => $currentID,
-		))->First();
+		$reg = $this->getCurrentRegistration();
+		$register = RegistrationPage::get()->First();
 
 		// If the user has no registration, redirect them to the registration page
-		if(!$reg) {
-			$register = RegistrationPage::get()->First();
+		if(!$reg){
 			if($register){
 				$this->redirect($register->URLSegment.'/');
 			} else {
@@ -107,11 +133,14 @@ class GameSignupPage_Controller extends Page_Controller {
 			}
 		}
 
+		if(!$this->userGameRegOpen() && !$this->OpenGameReg) {
+			return false;
+		}
+
 		// If the user has already added games, redirect them to after submission
 		// @todo: allow users to edit submitted game choices
-		// @todo: show users what choices they made, sorted by round and then preference
-		if($reg->Games()->Count() > 0){
-			$this->redirect($this->Link('aftersubmission'));
+		if($reg->PlayerGames()->Count() > 0){
+			$this->redirect($this->Link('yourgames'));
 		}
 
 		$fields = $this->GameSignupFields($reg);
@@ -145,30 +174,27 @@ class GameSignupPage_Controller extends Page_Controller {
 	public function GameSignupFields($reg){
 		$fields = new FieldList();
 
-		$siteConfig = SiteConfig::current_site_config();
-		$currentID = $siteConfig->getCurrentEventID();
+		$currentID = $this->getCurrentEvent()->ID;
 		$event = Event::get()->byID($currentID);
-
-		$member = Member::currentUser();
 
 		$prefNum =  $event->PreferencesPerSession;
 
-		$reg = Registration::get()->filter(array(
-			'MemberID' => $member->ID,
-			'ParentID' => $currentID,
-		));
+		$reg = $this->getCurrentRegistration();
 
-		$fields->push(new HiddenField('RegistrationID', 'Reg', $reg->First()->ID));
-
+		$fields->push(new HiddenField('RegistrationID', 'Reg', $reg->ID));
 		$fields->push(new LiteralField('no-js','<p class="js-hide">This page works better with javascript. If you can\'t use javascript, rank the items below in your order of preference. 1 for your first choice, 2 for your second. Note, only the top ' . $prefNum . ' will be recorded</p>'));
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
 			$evenOdd = $session % 2 == 0 ? 'even': 'odd';
 			$fieldset = '<fieldset id="round'.$session.'" class="preference-group preference-'.$prefNum.' data-preference-select="preference-select-group">';
 
-			$fields->push(new LiteralField('Heading_'.$session, '<h5>Round '.$session.'</h5>'. $fieldset));
+			$fields->push(new LiteralField('Heading_'.$session, '<h5>Round '.$session.' preferences</h5>'. $fieldset));
 
-			$games = Game::get()->filter(array('Session'=> $session, 'ParentID'=>$currentID))->sort('RAND()');
+			$games = Game::get()->filter(array(
+				'Session' => $session, 
+				'ParentID' =>$currentID,
+				'Status' => true
+			))->sort('RAND()');
 
 			$i = 1;
 			foreach ($games as $game){
@@ -190,7 +216,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			$gameOptions->setValue($i)
 					->setRightTitle("Not playing")
 					->setAttribute('type','number')
-					->addExtraClass('small-input js-hide-input');
+					->addExtraClass('small-input js-hide-input not-playing');
 
 			$fields->push($gameOptions);
 
@@ -208,7 +234,8 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	public function gamesessionasjson($request){
 		$session = $request->param('ID') ? $request->param('ID') : 1;
-		$games =  Game::get()->filter('Session', $session)->map('ID', 'Title')->toArray();
+
+		$games =  Game::get()->filter(array('Session' => $session, 'Status' => true))->map('ID', 'Title')->toArray();
 		return Convert::array2json($games);
 	}
 
@@ -217,7 +244,7 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	public function addplayergames($data, Form $form) {
 		if($this->addPlayerGame($data, $form)) {
-			return $this->redirect($this->Link('aftersubmission'));
+			return $this->redirect($this->Link('yourgames'));
 		} else {
 			return $this->redirectBack();
 		}
@@ -230,20 +257,22 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	protected function addPlayerGame($data,$form) {
 		$fields = $form->Fields();
-
-		$siteConfig = SiteConfig::current_site_config();
-		$currentID = $siteConfig->getCurrentEventID();
-		$event = Event::get()->byID($currentID);
+		$event = $this->getCurrentEvent();
+		$currentID = $event->ID;
 
 		$prefNum =  $event->PreferencesPerSession;
 
-		// this will need to be an object saved as the registration relations
 		$regID = $data['RegistrationID'];
 		$reg = Registration::get()->byID($regID);
 
-		if($reg->Games()->Count() > 0){
-			foreach($reg->Games() as $playerGame){
-				$reg->Games()->removeByID($playerGame->ID);
+		if (!$reg){
+			return false;
+		}
+
+		// @todo - handle a proper 'change game' case
+		if($reg->PlayerGames()->Count() > 0){
+			foreach($reg->PlayerGames() as $playerGame){
+				$reg->PlayerGames()->removeByID($playerGame->ID);
 				$playerGame->delete();
 			}
 		}
@@ -252,7 +281,11 @@ class GameSignupPage_Controller extends Page_Controller {
 
 			$notPlay = $data["NotPlaying_".$session];
 
-			$games = Game::get()->filter(array('Session'=> $session, 'ParentID'=>$currentID));
+			$games = Game::get()->filter(array(
+				'Session'=> $session, 
+				'ParentID'=>$currentID, 
+				'Status' => true
+			));
 
 			// Alter prefnumber so it stops when it encounters "not Playing"
 			if($notPlay != 0 && $notPlay < $prefNum){
@@ -268,7 +301,7 @@ class GameSignupPage_Controller extends Page_Controller {
 				$gamePref = $data["GameID_".$game->ID];
 
 				// only store games with a preference higher than our threshold
-				if ($gamePref > $prefNum) {
+				if ($gamePref > $prefNum || !isset($gamePref)) {
 					continue;
 				}
 
@@ -294,16 +327,42 @@ class GameSignupPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * Returns the after submission content to the user.
+	 * Returns data for the your games view (after game selection)
 	 *
 	 * @return array
 	 */
-	public function aftersubmission() {
+	public function yourgames() {
 		return array (
-			'Title'   => "Games chosen!",
-			'Content' => "Your game choices have been submitted. If you wish to change your games, please contact us.",
-			'Form' => false
+			'Title'   => "Your Games",
+			'Content' => "Your game choices are listed below. If any of this is incorrect, or if you wish to change your game choices, please contact us.",
+			'Form' => false,
+			'SubmittedGames' => true
 		);
 	}
 
+	/*
+	 * @return GroupedList
+	 */
+	public function getGroupedPlayerGames(){
+		$reg = $this->getCurrentRegistration();
+
+		if(!$reg){
+			return false;
+		}
+
+		$playergames = $reg->PlayerGames();
+		$games = new ArrayList();
+
+		foreach($playergames as $playergame){
+			$games->push(new ArrayData(array(
+				"Game" => $playergame->Game(),
+				"Preference" => $playergame->Preference,
+				"Session" => $playergame->Game()->Session
+			)));
+		}
+
+		$result = $games->sort(array('Session' => 'ASC', 'Preference' => 'ASC'));
+
+		return GroupedList::create($result);
+	}
 }

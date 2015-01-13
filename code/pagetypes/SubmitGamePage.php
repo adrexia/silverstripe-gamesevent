@@ -44,8 +44,9 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$member = Member::currentUser();
 		$game = Game::get()->byID($params['ID']);
 
-		if($game->ID && $member){
-			if($game->FacilitatorID === $member->ID || Permission::check('ADMIN')){ 
+		if($game && $member){ 
+			if($game->FacilitatorID == $member->ID || Permission::check('ADMIN')){ 
+
 				$form = $this->Form();
 				$fields = $form->Fields();
 				$form->loadDataFrom($game);
@@ -65,6 +66,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 				$this->redirect($params['URLSegment'].'/');
 			}
 		} else {
+
 			$this->redirect($params['URLSegment'].'/');
 		}
 	}

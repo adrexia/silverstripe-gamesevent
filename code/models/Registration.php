@@ -19,7 +19,7 @@ class Registration extends DataObject {
 	);
 
 	private static $has_many = array(
-		'Games'=>'PlayerGame'
+		'PlayerGames'=>'PlayerGame'
 	);
 
 	private static $summary_fields = array(
@@ -68,13 +68,13 @@ class Registration extends DataObject {
 
 		// Carousel tab
 		$gridField = new GridField(
+			'PlayerGames',
 			'Games',
-			'Games',
-			$this->Games(),
+			$this->PlayerGames(),
 			$conf =GridFieldConfig_RelationEditor::create());
 
 		$gridField->setModelClass('PlayerGame');
-		$fields->addFieldToTab('Root.Games', $gridField);
+		$fields->addFieldToTab('Root.PlayerGames', $gridField);
 		$conf->addComponent(new GridFieldDeleteAction(false));
 		
 		return $fields;
