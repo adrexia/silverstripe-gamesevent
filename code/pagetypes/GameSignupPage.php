@@ -127,9 +127,9 @@ class GameSignupPage_Controller extends Page_Controller {
 		// If the user has no registration, redirect them to the registration page
 		if(!$reg){
 			if($register){
-				$this->redirect($register->URLSegment.'/');
+				return $this->redirect($register->AbsoluteLink());
 			} else {
-				return false;
+				return $this->redirect($this->baseURL);
 			}
 		}
 
@@ -140,7 +140,7 @@ class GameSignupPage_Controller extends Page_Controller {
 		// If the user has already added games, redirect them to after submission
 		// @todo: allow users to edit submitted game choices
 		if($reg->PlayerGames()->Count() > 0){
-			$this->redirect($this->Link('yourgames'));
+			return $this->redirect($this->Link('yourgames'));
 		}
 
 		$fields = $this->GameSignupFields($reg);
