@@ -102,9 +102,14 @@ class GameSignupPage_Controller extends Page_Controller {
 	/* 
 	 * Check if there are any groups added to OpenGameRegForGroups
 	 * return true if the current member is in one of these groups
+	 * 
+	 * If game reg is open, return true
 	 * @return Boolean
 	 */
-	public function userGameRegOpen(){
+	public function userGameRegOpen() {
+		if($this->OpenGameReg){
+			return true;
+		}
 		if($this->OpenGameRegForGroups()) {
 			foreach ($this->OpenGameRegForGroups() as $group){
 				if (Member::currentUser()->inGroup($group->ID)){
@@ -133,7 +138,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			}
 		}
 
-		if(!$this->userGameRegOpen() && !$this->OpenGameReg) {
+		if(!$this->userGameRegOpen()) {
 			return false;
 		}
 
