@@ -182,6 +182,8 @@ class GameSignupPage_Controller extends Page_Controller {
 		$reg = $this->getCurrentRegistration();
 
 		$fields->push(new HiddenField('RegistrationID', 'Reg', $reg->ID));
+		$fields->push($fav = new HiddenField('FavouriteID', 'Favourite'));
+		$fav->addExtraClass('favourite-id');
 		$fields->push(new LiteralField('no-js','<p class="js-hide">This page works better with javascript. If you can\'t use javascript, rank the items below in your order of preference. 1 for your first choice, 2 for your second. Note, only the top ' . $prefNum . ' will be recorded</p>'));
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
@@ -203,6 +205,7 @@ class GameSignupPage_Controller extends Page_Controller {
 				$gameOptions->setValue($i)
 						->setRightTitle($game->Title)
 						->setAttribute('type','number')
+						->setAttribute('data-id',$game->ID)
 						->addExtraClass('small-input js-hide-input');
 
 				$fields->push($gameOptions);
@@ -277,6 +280,8 @@ class GameSignupPage_Controller extends Page_Controller {
 			}
 		}
 
+		$favouriteID = $data["FavouriteID"];
+
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
 
 			$notPlay = $data["NotPlaying_".$session];
@@ -305,6 +310,8 @@ class GameSignupPage_Controller extends Page_Controller {
 					continue;
 				}
 
+
+
 				$playerGame = PlayerGame::create();
 
 				$form->saveInto($playerGame);
@@ -312,6 +319,10 @@ class GameSignupPage_Controller extends Page_Controller {
 				$playerGame->GameID = $game->ID;
 				$playerGame->ParentID = $regID;
 				$playerGame->Preference = $gamePref;
+
+				if($favouriteID == $game->ID){
+					$playerGame->Favourite = true;
+				}
 
 				try {
 					$playerGame->write();
@@ -332,6 +343,10 @@ class GameSignupPage_Controller extends Page_Controller {
 	 * @return array
 	 */
 	public function yourgames() {
+		$reg = $this->getCurrentRegistration();
+		if(!$reg->PlayerGames()->Count() > 0){
+			return $this->redirect($this->Link());
+		}
 		return array (
 			'Title'   => "Your Games",
 			'Content' => "Your game choices are listed below. If any of this is incorrect, or if you wish to change your game choices, please contact us.",
@@ -357,6 +372,8 @@ class GameSignupPage_Controller extends Page_Controller {
 			$games->push(new ArrayData(array(
 				"Game" => $playergame->Game(),
 				"Preference" => $playergame->Preference,
+				"Favourite" => $playergame->Favourite,
+				"Status" => $playergame->Status,
 				"Session" => $playergame->Game()->Session
 			)));
 		}

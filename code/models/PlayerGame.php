@@ -3,7 +3,8 @@
 class PlayerGame extends DataObject {
 	private static $db = array(
 		'Preference'=>'Int',
-		'Status'=>'Boolean'
+		'Status'=>'Boolean',
+		'Favourite'=>'Boolean'
 	);
 
 	private static $has_one = array(
@@ -15,11 +16,21 @@ class PlayerGame extends DataObject {
 	private static $summary_fields = array(
 		'Game.Title'=>'Game',
 		'Preference'=>'Preference',
-		'Game.Session'=>'Session'
+		'Game.Session'=>'Session',
+		'Favourite.Nice'=>'Favourite',
+		'NiceStatus'=>'Status',
 	);
 
 	public function getTitle() {
 		 return $this->Game()->Title;
+	}
+
+	public function NiceStatus() {
+		if($this->Status){
+			return 'Accepted';
+		} else {
+			return 'Pending or Declined';
+		}
 	}
 
 	public function getMemberName() {
@@ -59,7 +70,7 @@ class PlayerGame extends DataObject {
 
 		$pref = array();
 		for ($i = 1; $i <= $prefNum; $i++){ 
-			array_push($pref, $i);
+			$pref[$i] = $i;
 		}
 
 		$preference = new DropdownField('Preference', 'Preference', $pref);
@@ -73,6 +84,10 @@ class PlayerGame extends DataObject {
 		$player = new DropdownField('ParentID', 'Player', $reg);
 		$player->setEmptyString(' ');
 		$fields->insertAfter($player, 'Status');
+
+		$fields->insertAfter($fields->dataFieldByName('Favourite'), 'Status');
+
+		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
 
 		return $fields;
 	}
