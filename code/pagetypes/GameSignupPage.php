@@ -8,7 +8,8 @@ class GameSignupPage extends Page {
 	private static $icon = "gamesevent/images/gamesignup.png";
 
 	private static $db = array(
-		'OpenGameReg'=>'Boolean'
+		'OpenGameReg'=>'Boolean',
+		'GameLiveContent'=>'HTMLText'
 	);
 
 	private static $many_many = array(
@@ -17,6 +18,9 @@ class GameSignupPage extends Page {
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
+
+		$fields->insertAfter($gameFormContent = new HTMLEditorField('GameLiveContent', 'Game selection form detail'),'Content');
+		$gameFormContent->setRows(20);
 
 		$regOpen = new CheckboxField('OpenGameReg', '');
 		$fields->insertBefore($cField = new CompositeField(array(
