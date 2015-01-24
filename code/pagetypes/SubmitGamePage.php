@@ -49,11 +49,13 @@ class SubmitGamePage_Controller extends Page_Controller {
 
 				$form = $this->Form();
 				$fields = $form->Fields();
-				$form->loadDataFrom($game);
 
 				if($game->Status){
 					$fields->removeByName('Session');
+					$fields->push(new HiddenField('Session'));
 				}
+
+				$form->loadDataFrom($game);
 
 				$data = array (
 					'Title' => 'Edit: ' . $game->Title,
@@ -208,7 +210,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		// hidden field for all current genres
 		$fields->push(new LiteralField('GenreList', $this->renderGenreList($genres)));
 
-		$briefEditor = new TextAreaField('Brief', 'Abstract');
+		$briefEditor = new TextAreaField('Brief', 'Brief (Short Description)');
 		$briefEditor->setRows(5);
 		$fields->push($briefEditor);
 
