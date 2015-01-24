@@ -10,7 +10,8 @@ class Registration extends DataObject {
 		'SpecialDietryInfo'=>'Text',
 		'Accommodation'=>'Boolean',
 		'ExtraDetail'=>'Text',
-		'PublicFieldsRaw' => 'Text'
+		'PublicFieldsRaw' => 'Text',
+		'Sort' => 'Int'
 	);
 
 	private static $has_one = array(
@@ -29,6 +30,8 @@ class Registration extends DataObject {
 		'NumberOfGames' =>'Number of Games',
 		'Parent.Title' => 'Event'
 	);
+
+	public static $default_sort = 'Sort';
 
 	public function getTitle(){
 		return $this->getMemberName();
@@ -65,6 +68,7 @@ class Registration extends DataObject {
 		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
 		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
 		$fields->removeByName('PublicFieldsRaw');
+		$fields->removeByName('Sort');
 
 		// Carousel tab
 		$gridField = new GridField(
@@ -72,6 +76,8 @@ class Registration extends DataObject {
 			'Games',
 			$this->PlayerGames(),
 			$conf =GridFieldConfig_RelationEditor::create());
+
+		$conf->addComponent(new GridFieldOrderableRows());
 
 		$gridField->setModelClass('PlayerGame');
 		$fields->addFieldToTab('Root.PlayerGames', $gridField);

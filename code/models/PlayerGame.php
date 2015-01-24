@@ -4,7 +4,8 @@ class PlayerGame extends DataObject {
 	private static $db = array(
 		'Preference'=>'Int',
 		'Status'=>'Boolean',
-		'Favourite'=>'Boolean'
+		'Favourite'=>'Boolean',
+		'Sort'=>'Int'
 	);
 
 	private static $has_one = array(
@@ -14,16 +15,23 @@ class PlayerGame extends DataObject {
 
 
 	private static $summary_fields = array(
-		'Game.Title'=>'Game',
+		'Title'=>'Game',
 		'Preference'=>'Preference',
-		'Game.Session'=>'Session',
+		'GameSession'=>'Session',
 		'Favourite.Nice'=>'Favourite',
 		'NiceStatus'=>'Status',
 	);
 
+	public static $default_sort = 'Sort, Status DESC, Preference';
+
 	public function getTitle() {
 		 return $this->Game()->Title;
 	}
+
+	public function GameSession() {
+		return $this->Game()->Session;
+	}
+
 
 	public function NiceStatus() {
 		if($this->Status){
@@ -53,6 +61,8 @@ class PlayerGame extends DataObject {
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
+		$fields->removeByName('Sort');
+
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 

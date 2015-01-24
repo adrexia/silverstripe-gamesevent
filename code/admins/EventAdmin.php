@@ -1,7 +1,6 @@
 <?php
 /*
-* Admin for events
-*
+* Admin for current event
 */
 
 class EventAdmin extends ModelAdmin {
@@ -26,6 +25,8 @@ class EventAdmin extends ModelAdmin {
 
 		$list = $gridField->getList()->filter(array('ParentID'=>$current));
 		$gridField->setList($list);
+
+		$gridField->getConfig()->addComponent(new GridFieldOrderableRows());
 
 		return $form;
 	}

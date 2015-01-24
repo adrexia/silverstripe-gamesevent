@@ -12,7 +12,8 @@ class Game extends DataObject {
 		'FacilitatorID' => 'Int',
 		'FacilitatorText'=>'Text',
 		'Brief'=>'Text',
-		'Details'=>'HTMLText'
+		'Details'=>'HTMLText',
+		'Sort'=>'Int'
 	);
 
 	private static $has_one = array(
@@ -36,7 +37,7 @@ class Game extends DataObject {
 
 	private static $defaults = array("FacilitatorID" => 0);
 
-	private static $default_sort = "Title ASC";
+	private static $default_sort = "Sort ASC, Title ASC";
 
 	public function getCurrentDisplayFields(){
 		return array(
@@ -84,7 +85,7 @@ class Game extends DataObject {
 		$member = new DropdownField(
 			'FacilitatorID',
 			'Facilitator',
-			Member::get()->map('ID', 'FirstName')),
+			Member::get()->map('ID', 'Name')),
 		'Session');
 		$member->setEmptyString(' ');
 
@@ -102,6 +103,7 @@ class Game extends DataObject {
 			$gridField->getConfig()->getComponentByType('GridFieldDataColumns')->setDisplayFields(
 				singleton("PlayerGame")->getCurrentDisplayFields()
 			);
+			$gridField->getConfig()->addComponent(new GridFieldOrderableRows());
 		}
 		
 		return $fields;

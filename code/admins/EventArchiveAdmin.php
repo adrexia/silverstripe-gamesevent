@@ -1,6 +1,6 @@
 <?php
 /*
- * Graphical interface for creating basic flowcharts
+ * Admin for all events
  *
  */
 

@@ -1,7 +1,7 @@
 <?php
 
 /*
-* This page will hold user game choices, writing to the PlayerGame dataobject
+* This page allows users to register game choices, writing to the PlayerGame dataobject
 */
 class GameSignupPage extends Page {
 
