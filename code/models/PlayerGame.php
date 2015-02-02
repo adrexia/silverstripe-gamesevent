@@ -24,42 +24,6 @@ class PlayerGame extends DataObject {
 
 	public static $default_sort = 'Sort, Status DESC, Preference';
 
-	public function getTitle() {
-		 return $this->Game()->Title;
-	}
-
-	public function GameSession() {
-		return $this->Game()->Session;
-	}
-
-
-	public function NiceStatus() {
-		if($this->Status){
-			return 'Accepted';
-		} else {
-			return 'Pending or Declined';
-		}
-	}
-
-	public function getMemberName() {
-		return $this->Parent()->Member()->FirstName . '' . $this->Parent()->Member()->Surname;
-	}
-
-	public function getMemberEmail() {
-		return $this->Parent()->Member()->Email;
-	}
-
-	public function getCurrentDisplayFields() {
-		return array(
-			'MemberName' => 'Player',
-			'MemberEmail' => 'Email',
-			'Preference'=>'Preference Number',
-			'GameSession'=>'Session',
-			'Favourite.Nice'=>'Favourite',
-			'NiceStatus'=>'Status'
-		);
-	}
-
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->removeByName('Sort');
@@ -101,6 +65,55 @@ class PlayerGame extends DataObject {
 		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
 
 		return $fields;
+	}
+
+	public function getExportFields() {
+		return array(
+			'Game.Title'=>'Game',
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'Preference'=>'Preference',
+			'NiceStatus'=>'Status',
+			'Favourite.Nice'=>'Favourite',
+			'GameSession'=>'Session',
+		);
+
+	}
+
+	public function getTitle() {
+		 return $this->Game()->Title;
+	}
+
+	public function GameSession() {
+		return $this->Game()->Session;
+	}
+
+
+	public function NiceStatus() {
+		if($this->Status){
+			return 'Accepted';
+		} else {
+			return 'Pending or Declined';
+		}
+	}
+
+	public function getMemberName() {
+		return $this->Parent()->Member()->FirstName . '' . $this->Parent()->Member()->Surname;
+	}
+
+	public function getMemberEmail() {
+		return $this->Parent()->Member()->Email;
+	}
+
+	public function getCurrentDisplayFields() {
+		return array(
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'Preference'=>'Preference Number',
+			'GameSession'=>'Session',
+			'Favourite.Nice'=>'Favourite',
+			'NiceStatus'=>'Status'
+		);
 	}
 
 	public function canCreate($member = null) {

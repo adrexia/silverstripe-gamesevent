@@ -33,6 +33,35 @@ class Registration extends DataObject {
 
 	public static $default_sort = 'Sort';
 
+
+	public function getCMSFields() {
+		$fields = parent::getCMSFields();
+		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
+		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
+		$fields->removeByName('PublicFieldsRaw');
+		$fields->removeByName('Sort');
+
+
+		$gridField = new GridField(
+			'PlayerGames',
+			'Games',
+			$this->PlayerGames(),
+			$config =GridFieldConfig_RelationEditor::create());
+
+		$config->addComponent(new GridFieldOrderableRows());
+		$config->removeComponentsByType('GridFieldPaginator');
+		$config->removeComponentsByType('GridFieldPageCount');
+
+		$config->addComponent($export = new GridFieldExportButton('before'));
+		$export->setExportColumns(singleton("PlayerGame")->getExportFields());
+
+		$gridField->setModelClass('PlayerGame');
+		$fields->addFieldToTab('Root.PlayerGames', $gridField);
+		$config->addComponent(new GridFieldDeleteAction(false));
+		
+		return $fields;
+	}
+
 	public function getTitle(){
 		return $this->getMemberName();
 	}
@@ -61,33 +90,6 @@ class Registration extends DataObject {
 	public function getMemberEmail(){
 		return $this->Member()->Email;
 	}
-
-
-	public function getCMSFields() {
-		$fields = parent::getCMSFields();
-		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
-		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
-		$fields->removeByName('PublicFieldsRaw');
-		$fields->removeByName('Sort');
-
-
-		$gridField = new GridField(
-			'PlayerGames',
-			'Games',
-			$this->PlayerGames(),
-			$config =GridFieldConfig_RelationEditor::create());
-
-		$config->addComponent(new GridFieldOrderableRows());
-		$config->removeComponentsByType('GridFieldPaginator');
-		$config->removeComponentsByType('GridFieldPageCount');
-
-		$gridField->setModelClass('PlayerGame');
-		$fields->addFieldToTab('Root.PlayerGames', $gridField);
-		$config->addComponent(new GridFieldDeleteAction(false));
-		
-		return $fields;
-	}
-
 
 	public function getPublicFields() {
 		return (array) unserialize($this->owner->getField('PublicFieldsRaw'));

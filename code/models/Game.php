@@ -107,6 +107,9 @@ class Game extends DataObject {
 			$config->addComponent(new GridFieldOrderableRows());
 			$config->removeComponentsByType('GridFieldPaginator');
 			$config->removeComponentsByType('GridFieldPageCount');
+
+			$config->addComponent($export = new GridFieldExportButton('before'));
+			$export->setExportColumns(singleton("PlayerGame")->getExportFields());
 		}
 		
 		return $fields;
