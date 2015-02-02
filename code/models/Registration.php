@@ -70,18 +70,20 @@ class Registration extends DataObject {
 		$fields->removeByName('PublicFieldsRaw');
 		$fields->removeByName('Sort');
 
-		// Carousel tab
+
 		$gridField = new GridField(
 			'PlayerGames',
 			'Games',
 			$this->PlayerGames(),
-			$conf =GridFieldConfig_RelationEditor::create());
+			$config =GridFieldConfig_RelationEditor::create());
 
-		$conf->addComponent(new GridFieldOrderableRows());
+		$config->addComponent(new GridFieldOrderableRows());
+		$config->removeComponentsByType('GridFieldPaginator');
+		$config->removeComponentsByType('GridFieldPageCount');
 
 		$gridField->setModelClass('PlayerGame');
 		$fields->addFieldToTab('Root.PlayerGames', $gridField);
-		$conf->addComponent(new GridFieldDeleteAction(false));
+		$config->addComponent(new GridFieldDeleteAction(false));
 		
 		return $fields;
 	}

@@ -100,10 +100,13 @@ class Game extends DataObject {
 		$gridField = $fields->dataFieldByName("Players");
 
 		if ($gridField) {
-			$gridField->getConfig()->getComponentByType('GridFieldDataColumns')->setDisplayFields(
+			$config = $gridField->getConfig();
+			$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(
 				singleton("PlayerGame")->getCurrentDisplayFields()
 			);
-			$gridField->getConfig()->addComponent(new GridFieldOrderableRows());
+			$config->addComponent(new GridFieldOrderableRows());
+			$config->removeComponentsByType('GridFieldPaginator');
+			$config->removeComponentsByType('GridFieldPageCount');
 		}
 		
 		return $fields;

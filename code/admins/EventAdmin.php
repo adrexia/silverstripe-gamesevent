@@ -23,6 +23,8 @@ class EventAdmin extends ModelAdmin {
 			singleton($this->sanitiseClassName($this->modelClass))->getCurrentDisplayFields()
 		);
 
+		$gridField->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
+
 		$list = $gridField->getList()->filter(array('ParentID'=>$current));
 		$gridField->setList($list);
 
