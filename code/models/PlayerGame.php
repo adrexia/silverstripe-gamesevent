@@ -104,7 +104,7 @@ class PlayerGame extends DataObject {
 	}
 
 	public function getMemberName() {
-		return $this->Parent()->Member()->FirstName . '' . $this->Parent()->Member()->Surname;
+		return $this->Parent()->Member()->FirstName . ' ' . $this->Parent()->Member()->Surname;
 	}
 
 	public function getMemberEmail() {
