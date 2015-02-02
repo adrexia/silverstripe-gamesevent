@@ -37,13 +37,14 @@ class EventAdmin extends ModelAdmin {
 		$gridField->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
 
 		if($this->sanitiseClassName($this->modelClass) == 'PlayerGame'){
-			$playerGames = $gridField->getList();
-			$list = new ArrayList();
-			foreach ($playerGames as $playerGame){
-				if($playerGame->Parent()->Parent()->ID == $current){
-					$list->push($playerGame);
-				}
-			}
+			$list = $gridField->getList();
+			// @todo: add onBeforeWrite and store eventID with object
+			// $list = new ArrayList();
+			// foreach ($playerGames as $playerGame){
+			// 	if($playerGame->Parent()->Parent()->ID == $current){
+			// 		$list->push($playerGame);
+			// 	}
+			// }
 			$gridField->getConfig()->getComponentByType('GridFieldExportButton')->setExportColumns(singleton("PlayerGame")->getExportFields());
 		} else {
 			$list = $gridField->getList()->filter(array('ParentID'=>$current));
