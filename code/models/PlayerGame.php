@@ -54,8 +54,9 @@ class PlayerGame extends DataObject {
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Preference'=>'Preference Number',
-			'Game.Session'=>'Session',
-			'Status'=>'Status'
+			'GameSession'=>'Session',
+			'Favourite.Nice'=>'Favourite',
+			'NiceStatus'=>'Status'
 		);
 	}
 
