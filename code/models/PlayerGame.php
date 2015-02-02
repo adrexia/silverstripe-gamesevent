@@ -22,6 +22,8 @@ class PlayerGame extends DataObject {
 		'NiceStatus'=>'Status',
 	);
 
+	public static $plural_name = "Player Games";
+
 	public static $default_sort = 'Sort, Status DESC, Preference';
 
 	public function getCMSFields() {
@@ -80,8 +82,12 @@ class PlayerGame extends DataObject {
 
 	}
 
+	public function getEvent(){
+		return $this->Parent()->Parent()->ID;
+	}
+
 	public function getTitle() {
-		 return $this->Game()->Title;
+		return $this->Game()->Title;
 	}
 
 	public function GameSession() {

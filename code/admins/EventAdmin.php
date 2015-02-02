@@ -5,7 +5,18 @@
 
 class EventAdmin extends ModelAdmin {
 
-	private static $managed_models = array('Game', 'Registration');
+	private static $managed_models = array(
+		'Game' => array(
+			'title' => 'Games'
+		), 
+		'Registration' => array(
+			'title' => 'Registrations'
+		),
+		'PlayerGame' => array(
+			'title' => 'Player Games'
+		)
+	);
+
 	private static $url_segment = 'event';
 	private static $menu_title = 'Event';
 
@@ -25,7 +36,19 @@ class EventAdmin extends ModelAdmin {
 
 		$gridField->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
 
-		$list = $gridField->getList()->filter(array('ParentID'=>$current));
+		if($this->sanitiseClassName($this->modelClass) == 'PlayerGame'){
+			$playerGames = $gridField->getList();
+			$list = new ArrayList();
+			foreach ($playerGames as $playerGame){
+				if($playerGame->Parent()->Parent()->ID == $current){
+					$list->push($playerGame);
+				}
+			}
+			$gridField->getConfig()->getComponentByType('GridFieldExportButton')->setExportColumns(singleton("PlayerGame")->getExportFields());
+		} else {
+			$list = $gridField->getList()->filter(array('ParentID'=>$current));
+
+		}
 		$gridField->setList($list);
 
 		$gridField->getConfig()->addComponent(new GridFieldOrderableRows());
