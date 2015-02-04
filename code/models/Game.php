@@ -39,15 +39,6 @@ class Game extends DataObject {
 
 	private static $default_sort = "Sort ASC, Title ASC";
 
-	public function getCurrentDisplayFields(){
-		return array(
-			'Title'=>'Title',
-			'Brief.FirstSentence'=>'Brief',
-			'MemberName' => 'Facilitator',
-			'Session'=>'Session',
-			'Status.Nice'=>'Accepted'
-		);
-	}
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
@@ -102,7 +93,7 @@ class Game extends DataObject {
 		if ($gridField) {
 			$config = $gridField->getConfig();
 			$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(
-				singleton("PlayerGame")->getCurrentDisplayFields()
+				singleton("PlayerGame")->getGameDisplayFields()
 			);
 			$config->addComponent(new GridFieldOrderableRows());
 			$config->removeComponentsByType('GridFieldPaginator');
@@ -114,6 +105,36 @@ class Game extends DataObject {
 		
 		return $fields;
 	}
+
+	public function getActiveEventDisplayFields(){
+		return array(
+			'Title'=>'Title',
+			'Brief.FirstSentence'=>'Brief',
+			'MemberName' => 'Facilitator',
+			'Session'=>'Session',
+			'Status.Nice'=>'Accepted'
+		);
+	}
+
+	
+	public function getExportFields() {
+		return array(
+			'Title'=>'Title',
+			'Session'=>'Session',
+			'NumPlayers'=>'Number of players (max)',
+			'Restriction'=>'Restriction',
+			'Genre'=>'Genre',
+			'Costuming'=>'Costuming',
+			'Status.Nice'=>'Accepted',
+			'MemberName' => 'Facilitator (owner)',
+			'FacilitatorText'=>'Facilitator (Multiple)',
+			'Brief'=>'Brief',
+			'Details'=>'Details',
+			'Parent.Title' => 'Event'
+		);
+	}
+
+
 
 	public function onBeforeWrite() { 
 		parent::onBeforeWrite(); 

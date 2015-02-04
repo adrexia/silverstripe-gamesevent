@@ -19,7 +19,7 @@ class PlayerGame extends DataObject {
 		'Preference'=>'Preference',
 		'GameSession'=>'Session',
 		'Favourite.Nice'=>'Favourite',
-		'NiceStatus'=>'Status',
+		'NiceStatus'=>'Status'
 	);
 
 	public static $plural_name = "Player Games";
@@ -79,7 +79,6 @@ class PlayerGame extends DataObject {
 			'Favourite.Nice'=>'Favourite',
 			'GameSession'=>'Session',
 		);
-
 	}
 
 	public function getEvent(){
@@ -111,7 +110,19 @@ class PlayerGame extends DataObject {
 		return $this->Parent()->Member()->Email;
 	}
 
-	public function getCurrentDisplayFields() {
+	public function getActiveEventDisplayFields() {
+		return array(
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'Title'=>'Game',
+			'Preference'=>'Preference Number',
+			'GameSession'=>'Session',
+			'Favourite.Nice'=>'Favourite',
+			'NiceStatus'=>'Status'
+		);
+	}
+
+	public function getGameDisplayFields() {
 		return array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',

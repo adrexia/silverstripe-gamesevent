@@ -31,25 +31,24 @@ class EventAdmin extends ModelAdmin {
 		$current = $siteConfig->getCurrentEventID();
 
 		$gridField->getConfig()->getComponentByType('GridFieldDataColumns')->setDisplayFields(
-			singleton($this->sanitiseClassName($this->modelClass))->getCurrentDisplayFields()
+			singleton($this->sanitiseClassName($this->modelClass))->getActiveEventDisplayFields()
 		);
 
 		$gridField->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
+		$gridField->getConfig()->getComponentByType('GridFieldExportButton')
+				->setExportColumns(
+					singleton($this->sanitiseClassName($this->modelClass))->getExportFields()
+				);
 
 		if($this->sanitiseClassName($this->modelClass) == 'PlayerGame'){
 			$list = $gridField->getList();
 			// @todo: add onBeforeWrite and store eventID with object
-			// $list = new ArrayList();
-			// foreach ($playerGames as $playerGame){
-			// 	if($playerGame->Parent()->Parent()->ID == $current){
-			// 		$list->push($playerGame);
-			// 	}
-			// }
-			$gridField->getConfig()->getComponentByType('GridFieldExportButton')->setExportColumns(singleton("PlayerGame")->getExportFields());
 		} else {
 			$list = $gridField->getList()->filter(array('ParentID'=>$current));
 
 		}
+
+
 		$gridField->setList($list);
 
 		$gridField->getConfig()->addComponent(new GridFieldOrderableRows());

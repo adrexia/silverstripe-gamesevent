@@ -25,13 +25,13 @@ class Registration extends DataObject {
 
 	private static $summary_fields = array(
 		'MemberName'=>'Title',
-		'MemberName' => 'Name',
 		'MemberEmail' => 'Email',
 		'NumberOfGames' =>'Number of Games',
 		'Parent.Title' => 'Event'
 	);
 
 	public static $default_sort = 'Sort';
+
 
 
 	public function getCMSFields() {
@@ -66,11 +66,28 @@ class Registration extends DataObject {
 		return $this->getMemberName();
 	}
 
-	public function getCurrentDisplayFields(){
+	public function getActiveEventDisplayFields(){
 		return array(
 			'MemberName' => 'Name',
 			'MemberEmail' => 'Email',
 			'NumberOfGames' =>'Number of Games'
+		);
+	}
+
+
+	public function getExportFields() {
+		return array(
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'AttendingWholeEvent.Nice'=>'Attending whole event', 
+			'AttendingTheseSessions'=>'Attending sessions', //only show these if whole event is not checked
+			'PlayWith'=>'Play with',
+			'NotPlayWith'=>'Not play with',
+			'Meals'=>"Meals",
+			'SpecialDietryInfo'=>'Special dietry info',
+			'Accommodation'=>'Accommodation',
+			'ExtraDetail'=>'Extra detail',
+			'Parent.Title' => 'Event'
 		);
 	}
 
