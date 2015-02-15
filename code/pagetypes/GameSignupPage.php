@@ -226,7 +226,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			// Add not playing option
 			$gameOptions = new NumericField("NotPlaying_".$session, '');
 			$gameOptions->setValue($i)
-					->setRightTitle("Not playing")
+					->setRightTitle("No game (or Facilitating)")
 					->setAttribute('type','number')
 					->addExtraClass('small-input js-hide-input not-playing');
 
