@@ -182,28 +182,6 @@ class Game extends DataObject {
 		return false;
 	}
 
-	/*
-	 * Produces an ArrayList of all genres on this object, with underscores and dashes replaced with spaces
-	 */
-	public function getGenresListNice() {
-		$genres = preg_split("/\s/", $this->Genre); // turn into array
-
-		if(count($genres) > 0){
-			$result = new ArrayList();
-			foreach($genres as $genre) {
-				$genre = str_replace("_",  " ", $genre);
-				$genre = str_replace("-",  " ", $genre);
-
-				$result->push(new ArrayData(array(
-					'Title' => $genre
-				)));
-			}
-			return $result;
-		}
-
-		return false;
-	}
-
 	public function showEditLink() {
 		$member = Member::currentUser();
 

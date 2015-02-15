@@ -117,4 +117,10 @@ class GameListingPage_Controller extends Page_Controller {
 		return $this->customise($data)->renderWith(array('GameListingPage_show', 'Page'));
 	}
 
+	// Strip underscores and spaces from a string
+	public function NiceString($title) {
+		$title = str_replace("_",  " ", $title);
+		return str_replace("-",  " ", $title);
+	}
+
 }
