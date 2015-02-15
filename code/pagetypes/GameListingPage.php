@@ -118,8 +118,11 @@ class GameListingPage_Controller extends Page_Controller {
 	}
 
 	// Strip underscores and spaces from a string
-	public function NiceString($title) {
+	public function NiceString($title, $sentenceCase = false) {
 		$title = str_replace("_",  " ", $title);
+		if ($sentenceCase) {
+			$title = ucfirst($title);
+		}
 		return str_replace("-",  " ", $title);
 	}
 

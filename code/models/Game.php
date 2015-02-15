@@ -230,7 +230,7 @@ class Game extends DataObject {
 	 * @return string
 	 */
 	public function getRoundTitle() {
-		return 'Round ' . $this->Session;
+		return 'round-' . $this->Session;
 	}
 
 	public function canCreate($member = null) {
