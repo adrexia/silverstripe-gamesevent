@@ -99,7 +99,7 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 
 
 	/**
-	 * Attempts to save a registration 
+	 * Attempts to save a registration
 	 *
 	 * @return Member|null
 	 */
@@ -221,12 +221,16 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			new TextField('AttendingTheseSessions', '...or Attending these rounds')
 		));
 
+		$attending->addExtraClass('attending-field');
+
 		$fields->push($attending);
 
 		$playing = new CompositeField(array(
 			new TextField('PlayWith', "I want to play with"),
 			new TextField('NotPlayWith', "I'd rather not play with")
 		));
+
+		$playing->addExtraClass('playing-field');
 
 		$fields->push($playing);
 
@@ -235,7 +239,9 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 				new CheckboxField('Meals', 'I want meals provided'),
 				new TextField('SpecialDietryInfo')
 			));
-			
+
+			$meals->addExtraClass('meals-field');
+
 			$fields->push($meals);
 		}
 
@@ -324,6 +330,5 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	}
 
 
-	
-}
 
+}
