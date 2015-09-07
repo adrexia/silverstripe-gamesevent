@@ -2,13 +2,13 @@
 
 class Registration extends DataObject {
 	private static $db = array(
-		'AttendingWholeEvent'=>'Boolean', 
+		'AttendingWholeEvent'=>'Boolean',
 		'AttendingTheseSessions'=>'Varchar(255)', //only show these if whole event is not checked
 		'PlayWith'=>'Varchar(255)',
 		'NotPlayWith'=>'Varchar(255)',
 		'Meals'=>"Boolean",
 		'SpecialDietryInfo'=>'Text',
-		'Accommodation'=>'Boolean',
+		'Accommodation'=>'Int',
 		'ExtraDetail'=>'Text',
 		'PublicFieldsRaw' => 'Text',
 		'Sort' => 'Int'
@@ -58,7 +58,7 @@ class Registration extends DataObject {
 		$gridField->setModelClass('PlayerGame');
 		$fields->addFieldToTab('Root.PlayerGames', $gridField);
 		$config->addComponent(new GridFieldDeleteAction(false));
-		
+
 		return $fields;
 	}
 
@@ -79,7 +79,7 @@ class Registration extends DataObject {
 		return array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
-			'AttendingWholeEvent.Nice'=>'Attending whole event', 
+			'AttendingWholeEvent.Nice'=>'Attending whole event',
 			'AttendingTheseSessions'=>'Attending sessions', //only show these if whole event is not checked
 			'PlayWith'=>'Play with',
 			'NotPlayWith'=>'Not play with',

@@ -29,7 +29,7 @@ class GameSignupPage extends Page {
 		)),'Content');
 
 		$cField->addExtraClass('field');
-		$regOpen->addExtraClass('mts'); 
+		$regOpen->addExtraClass('mts');
 		$label->addExtraClass('left');
 
 		$groupsMap = array();
@@ -44,7 +44,7 @@ class GameSignupPage extends Page {
 				->setMultiple(true)
 				->setSource($groupsMap)
 				->setAttribute(
-					'data-placeholder', 
+					'data-placeholder',
 					_t('Member.ADDGROUP', 'Add group', 'Placeholder text for a dropdown')
 				),'Content'
 		);
@@ -62,7 +62,7 @@ class GameSignupPage extends Page {
 		if(!$currentID || !$member){
 			return false;
 		}
-		
+
 		$reg = Registration::get()->filter(array(
 			'MemberID' => $member->ID,
 			'ParentID' => $this->getCurrentEvent()->ID,
@@ -86,7 +86,7 @@ class GameSignupPage extends Page {
 	 * @return String
 	 */
 	public function MenuTitle(){
-		if($this->getCurrentRegistration()->PlayerGames()->Count() > 0){
+		if($this->getCurrentRegistration() && $this->getCurrentRegistration()->PlayerGames()->Count() > 0){
 			return "Your Games";
 		}
 		return $this->MenuTitle;
@@ -103,10 +103,10 @@ class GameSignupPage_Controller extends Page_Controller {
 		'gamesessionasjson' => true
 	);
 
-	/* 
+	/*
 	 * Check if there are any groups added to OpenGameRegForGroups
 	 * return true if the current member is in one of these groups
-	 * 
+	 *
 	 * If game reg is open, return true
 	 * @return Boolean
 	 */
@@ -202,7 +202,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			$fields->push(new LiteralField('Heading_'.$session, '<h5>Round '.$session.' preferences</h5>'. $fieldset));
 
 			$games = Game::get()->filter(array(
-				'Session' => $session, 
+				'Session' => $session,
 				'ParentID' =>$currentID,
 				'Status' => true
 			))->sort('RAND()');
@@ -240,7 +240,7 @@ class GameSignupPage_Controller extends Page_Controller {
 	}
 
 	/*
-	 * Generate a json object of games for a session. 
+	 * Generate a json object of games for a session.
 	 * URL format: $this->Link/gamesessionasjson/$i
 	 * @return Json | Games per session
 	 */
@@ -263,7 +263,7 @@ class GameSignupPage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * Attempts to save a game 
+	 * Attempts to save a game
 	 *
 	 * @return Game|null
 	 */
@@ -296,8 +296,8 @@ class GameSignupPage_Controller extends Page_Controller {
 			$notPlay = $data["NotPlaying_".$session];
 
 			$games = Game::get()->filter(array(
-				'Session'=> $session, 
-				'ParentID'=>$currentID, 
+				'Session'=> $session,
+				'ParentID'=>$currentID,
 				'Status' => true
 			));
 
@@ -340,7 +340,7 @@ class GameSignupPage_Controller extends Page_Controller {
 					return;
 				}
 			}
-			
+
 		}
 
 		return $playerGame;
