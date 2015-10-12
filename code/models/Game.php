@@ -102,7 +102,7 @@ class Game extends DataObject {
 			$config->addComponent($export = new GridFieldExportButton('before'));
 			$export->setExportColumns(singleton("PlayerGame")->getExportFields());
 		}
-		
+
 		return $fields;
 	}
 
@@ -116,7 +116,7 @@ class Game extends DataObject {
 		);
 	}
 
-	
+
 	public function getExportFields() {
 		return array(
 			'Title'=>'Title',
@@ -136,9 +136,9 @@ class Game extends DataObject {
 
 
 
-	public function onBeforeWrite() { 
-		parent::onBeforeWrite(); 
-		$this->Genre = strtolower($this->Genre); 
+	public function onBeforeWrite() {
+		parent::onBeforeWrite();
+		$this->Genre = strtolower($this->Genre);
 	}
 
 	public function getMemberName(){
@@ -226,7 +226,15 @@ class Game extends DataObject {
 	}
 
 	/**
-	 * Returns the round title. 
+	 * Get all confirmed players
+	 * @return PlayerGame
+	 */
+	public function getPlayers() {
+		return $this->Players()->filter('Status', true);
+	}
+
+	/**
+	 * Returns the round title.
 	 * @return string
 	 */
 	public function getRoundTitle() {
