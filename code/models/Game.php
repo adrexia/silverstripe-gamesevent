@@ -229,8 +229,8 @@ class Game extends DataObject {
 	 * Get all confirmed players
 	 * @return PlayerGame
 	 */
-	public function getPlayers() {
-		return $this->Players()->filter('Status', true);
+	public function getCurrentPlayers() {
+		return $this->Players()->filter(array('Status'=> "1"));
 	}
 
 	/**
