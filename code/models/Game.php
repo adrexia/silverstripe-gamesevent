@@ -30,6 +30,7 @@ class Game extends DataObject {
 		'MemberName' => 'Facilitator',
 		'Session'=>'Session',
 		'Status.Nice'=>'Accepted',
+		'CountCurrentPlayers' => 'Number of Players',
 		'Parent.Title' => 'Event'
 	);
 
@@ -112,7 +113,8 @@ class Game extends DataObject {
 			'Brief.FirstSentence'=>'Brief',
 			'MemberName' => 'Facilitator',
 			'Session'=>'Session',
-			'Status.Nice'=>'Accepted'
+			'Status.Nice'=>'Accepted',
+			'CountCurrentPlayers' => 'Number of Players'
 		);
 	}
 
@@ -223,6 +225,15 @@ class Game extends DataObject {
 		if($gameListingPage){
 			return Controller::join_links($gameListingPage->URLSegment, $action, $this->ID);
 		}
+	}
+
+	/**
+	 * Get all confirmed players
+	 * @return PlayerGame
+	 */
+	public function CountCurrentPlayers() {
+		$players = $this->getCurrentPlayers();
+		return $players->Count();
 	}
 
 	/**
