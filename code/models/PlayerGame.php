@@ -69,11 +69,14 @@ class PlayerGame extends DataObject {
 
 		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
 
-		$parent = HiddenField::create(
+		$event = HiddenField::create(
 			'EventID',
 			'Event',
 			$event->ID
 		);
+
+		$fields->insertAfter($event, 'GameID');
+
 
 		return $fields;
 	}
