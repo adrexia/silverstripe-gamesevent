@@ -163,6 +163,8 @@ class GameSignupPage_Controller extends Page_Controller {
 			)
 		);
 
+		$form->enableSpamProtection();
+
 		$form->addExtraClass('preference-select');
 
 		return $form;

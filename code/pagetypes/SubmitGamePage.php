@@ -7,7 +7,7 @@ class SubmitGamePage extends Page {
 	private static $icon = "gamesevent/images/addgame.png";
 
 	private static $db = array(
-		'LoggedOutMessage'=>'HTMLText', 
+		'LoggedOutMessage'=>'HTMLText',
 		'AfterSubmissionContent'=>'HTMLText'
 	);
 
@@ -44,8 +44,8 @@ class SubmitGamePage_Controller extends Page_Controller {
 		$member = Member::currentUser();
 		$game = Game::get()->byID($params['ID']);
 
-		if($game && $member){ 
-			if($game->FacilitatorID == $member->ID || Permission::check('ADMIN')){ 
+		if($game && $member){
+			if($game->FacilitatorID == $member->ID || Permission::check('ADMIN')){
 
 				$form = $this->Form();
 				$fields = $form->Fields();
@@ -82,7 +82,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 	}
 
 	/**
-	 * Attempts to save a game 
+	 * Attempts to save a game
 	 *
 	 * @return Game|null
 	 */
@@ -174,6 +174,8 @@ class SubmitGamePage_Controller extends Page_Controller {
 				new FormAction('addgamesubmission', 'Submit')
 			)
 		);
+
+		$form->enableSpamProtection();
 
 		return $form;
 	}

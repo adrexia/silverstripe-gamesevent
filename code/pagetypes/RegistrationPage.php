@@ -207,6 +207,8 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			SpamProtectorManager::update_form($form);
 		}
 
+		$form->enableSpamProtection();
+
 		$this->extend('updateRegisterForm', $form);
 
 		return $form;
@@ -283,6 +285,9 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			),
 			new MemberProfileValidator($this->Fields(), Member::currentUser())
 		);
+		
+		$form->enableSpamProtection();
+
 		$this->extend('updateProfileForm', $form);
 		return $form;
 	}
