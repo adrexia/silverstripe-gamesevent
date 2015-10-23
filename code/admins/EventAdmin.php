@@ -8,7 +8,7 @@ class EventAdmin extends ModelAdmin {
 	private static $managed_models = array(
 		'Game' => array(
 			'title' => 'Games'
-		), 
+		),
 		'Registration' => array(
 			'title' => 'Registrations'
 		),
@@ -40,14 +40,11 @@ class EventAdmin extends ModelAdmin {
 					singleton($this->sanitiseClassName($this->modelClass))->getExportFields()
 				);
 
-		if($this->sanitiseClassName($this->modelClass) == 'PlayerGame'){
-			$list = $gridField->getList();
-			// @todo: add onBeforeWrite and store eventID with object
+		if($this->sanitiseClassName($this->modelClass) == 'PlayerGame') {
+			$list = $gridField->getList()->filter(array('EventID' => $current));
 		} else {
-			$list = $gridField->getList()->filter(array('ParentID'=>$current));
-
+			$list = $gridField->getList()->filter(array('ParentID' => $current));
 		}
-
 
 		$gridField->setList($list);
 

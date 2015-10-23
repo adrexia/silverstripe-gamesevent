@@ -37,27 +37,46 @@ class Registration extends DataObject {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 		$fields->insertBefore(new DropdownField('MemberID', 'Member', Member::get()->map('ID',"FirstName")), 'AttendingWholeEvent');
-		$fields->insertAfter(new DropdownField('ParentID', 'Event', Event::get()->map('ID',"Title")), 'ExtraDetail');
+
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
+
+		if($this->ParentID < 1){
+			$event = Event::get()->byID($current);
+		} else {
+			$event = Event::get()->byID($this->ParentID);
+		}
+
+		$fields->insertAfter(HiddenField::create(
+			'ParentID',
+			'Event',
+			$event->ID
+		), 'ExtraDetail');
+
 		$fields->removeByName('PublicFieldsRaw');
 		$fields->removeByName('Sort');
 
+		if($this->PlayerGames()->Count() > 0) {
+			
+			$gridField = new GridField(
+				'PlayerGames',
+				'Games',
+				$this->PlayerGames(),
+				$config =GridFieldConfig_RelationEditor::create());
+				$gridField->setModelClass('PlayerGame');
 
-		$gridField = new GridField(
-			'PlayerGames',
-			'Games',
-			$this->PlayerGames(),
-			$config =GridFieldConfig_RelationEditor::create());
 
-		$config->addComponent(new GridFieldOrderableRows());
-		$config->removeComponentsByType('GridFieldPaginator');
-		$config->removeComponentsByType('GridFieldPageCount');
+			$config->addComponent(new GridFieldOrderableRows());
+			$config->removeComponentsByType('GridFieldPaginator');
+			$config->removeComponentsByType('GridFieldPageCount');
 
-		$config->addComponent($export = new GridFieldExportButton('before'));
-		$export->setExportColumns(singleton("PlayerGame")->getExportFields());
+			$config->addComponent(new GridFieldDeleteAction(false));
 
-		$gridField->setModelClass('PlayerGame');
-		$fields->addFieldToTab('Root.PlayerGames', $gridField);
-		$config->addComponent(new GridFieldDeleteAction(false));
+			$config->addComponent($export = new GridFieldExportButton('before'));
+			$export->setExportColumns(singleton("PlayerGame")->getExportFields());
+
+			$fields->addFieldToTab('Root.PlayerGames', $gridField);
+		}
 
 		return $fields;
 	}

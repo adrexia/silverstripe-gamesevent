@@ -10,7 +10,8 @@ class PlayerGame extends DataObject {
 
 	private static $has_one = array(
 		'Game'=>'Game',
-		'Parent' => 'Registration'
+		'Parent' => 'Registration',
+		'Event'=>"Event"
 	);
 
 
@@ -33,10 +34,12 @@ class PlayerGame extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		if($this->Parent()->ParentID < 1){
-			$event = Event::get()->byID($current);
-		} else {
+		if($this->Event()->ID) {
+			$event = $this->Event();
+		} else if($this->Parent()->ParentID > 0) {
 			$event = Event::get()->byID($this->Parent()->ParentID);
+		} else {
+			$event = Event::get()->byID($current);
 		}
 
 		if($event){
@@ -46,7 +49,7 @@ class PlayerGame extends DataObject {
 		}
 
 		$pref = array();
-		for ($i = 1; $i <= $prefNum; $i++){ 
+		for ($i = 1; $i <= $prefNum; $i++){
 			$pref[$i] = $i;
 		}
 
@@ -66,7 +69,29 @@ class PlayerGame extends DataObject {
 
 		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
 
+		$parent = HiddenField::create(
+			'EventID',
+			'Event',
+			$event->ID
+		);
+
 		return $fields;
+	}
+
+	/**
+	 * Set eventID to match parent's event ID or current event (as a backup)
+	 */
+	public function onBeforeWrite() {
+		parent::onBeforeWrite();
+
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
+
+		if($this->Parent()->ParentID < 1) {
+			$this->EventID = $current;
+		} else {
+			$this->EventID = $this->Parent()->ParentID;
+		}
 	}
 
 	public function getExportFields() {

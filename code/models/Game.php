@@ -53,11 +53,10 @@ class Game extends DataObject {
 			$event = Event::get()->byID($this->ParentID);
 		}
 
-		$parent = new DropdownField(
+		$parent = HiddenField::create(
 			'ParentID',
 			'Event',
-			Event::get()->map('ID','Title'),
-			$current
+			$event->ID
 		);
 
 		$fields->insertAfter($parent, 'Details');
