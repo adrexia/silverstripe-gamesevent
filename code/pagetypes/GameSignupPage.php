@@ -270,11 +270,10 @@ class GameSignupPage_Controller extends Page_Controller {
 	 * @return Game|null
 	 */
 	protected function addPlayerGame($data,$form) {
+
 		$fields = $form->Fields();
 		$event = $this->getCurrentEvent();
 		$currentID = $event->ID;
-
-		$prefNum =  $event->PreferencesPerSession;
 
 		$regID = $data['RegistrationID'];
 		$reg = Registration::get()->byID($regID);
@@ -295,33 +294,32 @@ class GameSignupPage_Controller extends Page_Controller {
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
 
-			$notPlay = $data["NotPlaying_".$session];
+			$notPlay = (int)$data["NotPlaying_".$session];
+			$prefNum = $event->PreferencesPerSession;
 
 			$games = Game::get()->filter(array(
-				'Session'=> $session,
-				'ParentID'=>$currentID,
-				'Status' => true
+				'Session' => $session,
+				'ParentID' => $currentID,
+				'Status' => 1
 			));
 
-			// Alter prefnumber so it stops when it encounters "not Playing"
+			// Alter prefnumber so it stops when it encounters "Not Playing"
 			if($notPlay != 0 && $notPlay < $prefNum){
 				$prefNum = $notPlay;
 			}
 
 			// if first choice is to not play, don't create any games
-			if($notPlay === 1){
+			if($notPlay === 1) {
 				continue;
 			}
 
 			foreach ($games as $game){
-				$gamePref = $data["GameID_".$game->ID];
+				$gamePref = (int)$data["GameID_".$game->ID];
 
 				// only store games with a preference higher than our threshold
 				if ($gamePref > $prefNum || !isset($gamePref)) {
 					continue;
 				}
-
-
 
 				$playerGame = PlayerGame::create();
 
@@ -339,7 +337,6 @@ class GameSignupPage_Controller extends Page_Controller {
 					$playerGame->write();
 				} catch(ValidationException $e) {
 					$form->sessionMessage($e->getResult()->message(), 'bad');
-					return;
 				}
 			}
 
