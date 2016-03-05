@@ -43,7 +43,7 @@ class Registration extends DataObject {
 
 		$event = Event::get()->byID($this->ParentID);
 
-		if(!$event) {
+		if($event->Count() < 1) {
 			$event = Event::get()->byID($current);
 		}
 
