@@ -22,10 +22,12 @@ class GamesSiteConfig extends DataExtension {
 		}
 
 		$events = new GridField(
-			'Events', 
-			'Event', 
-			Event::get(), 
-			GridFieldConfig_RecordEditor::create());
+			'Events',
+			'Event',
+			Event::get(),
+			$config = GridFieldConfig_RecordEditor::create());
+
+			$config->removeComponentsByType('GridFieldDeleteAction');
 
 		$fields->addFieldToTab('Root.Events', $events);
 	}

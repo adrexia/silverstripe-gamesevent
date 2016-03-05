@@ -41,9 +41,14 @@ class Registration extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		$event = Event::get()->byID($this->ParentID);
 
-		if(!$event->exists()) {
+		if($this->ParentID < 1) {
+			$event = Event::get()->byID($this->ParentID);
+		} else {
+			$event = Event::get()->byID($current);
+		}
+
+		if(!$event) {
 			$event = Event::get()->byID($current);
 		}
 

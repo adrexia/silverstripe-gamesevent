@@ -53,6 +53,11 @@ class Game extends DataObject {
 			$event = Event::get()->byID($this->ParentID);
 		}
 
+		if(!$event) {
+			$event = Event::get()->byID($current);
+		}
+
+
 		$parent = HiddenField::create(
 			'ParentID',
 			'Event',
