@@ -41,10 +41,10 @@ class Registration extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		if($this->ParentID < 1){
+		$event = Event::get()->byID($this->ParentID);
+
+		if(!$event) {
 			$event = Event::get()->byID($current);
-		} else {
-			$event = Event::get()->byID($this->ParentID);
 		}
 
 		$fields->insertAfter(HiddenField::create(
@@ -57,7 +57,7 @@ class Registration extends DataObject {
 		$fields->removeByName('Sort');
 
 		if($this->PlayerGames()->Count() > 0) {
-			
+
 			$gridField = new GridField(
 				'PlayerGames',
 				'Games',
