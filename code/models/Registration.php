@@ -51,12 +51,12 @@ class Registration extends DataObject {
 		if(!$event) {
 			$event = Event::get()->byID($current);
 		}
-
-		$fields->insertAfter(HiddenField::create(
-			'ParentID',
-			'Event',
-			$event->ID
-		), 'ExtraDetail');
+		//
+		// $fields->insertAfter(HiddenField::create(
+		// 	'ParentID',
+		// 	'Event',
+		// 	$event->ID
+		// ), 'ExtraDetail');
 
 		$fields->removeByName('PublicFieldsRaw');
 		$fields->removeByName('Sort');
