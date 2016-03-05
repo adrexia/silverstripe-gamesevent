@@ -48,7 +48,7 @@ class Event extends DataObject {
 	}
 
 	public function canDelete($member = null) {
-		return $this->Parent()->canDelete($member);
+		return false;
 	}
 
 	public function canView($member = null) {

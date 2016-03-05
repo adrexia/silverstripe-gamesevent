@@ -78,7 +78,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		if(!$member){
 			return false;
 		}
-		return Game::get()->filter('FacilitatorID', $member->ID);
+		return Game::get()->filter(array('FacilitatorID' => $member->ID, 'ParentID' => $this->getCurrentEventID()));
 	}
 
 	/**
@@ -114,6 +114,11 @@ class SubmitGamePage_Controller extends Page_Controller {
 		}
 
 		return $game;
+	}
+
+	public function getCurrentEventID() {
+		$siteConfig = SiteConfig::current_site_config();
+		return $siteConfig->CurrentEventID;
 	}
 
 	/**
