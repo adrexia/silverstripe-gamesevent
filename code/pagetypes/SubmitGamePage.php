@@ -130,9 +130,11 @@ class SubmitGamePage_Controller extends Page_Controller {
 			$id = $fields->dataFieldByName('ID')->Value();
 
 			if($id){
-				return $this->redirect($this->Link('afterediting'));
+				$this->redirect($this->Link('afterediting'));
+				return;
 			} else {
-				return $this->redirect($this->Link('aftersubmission'));
+				$this->redirect($this->Link('aftersubmission'));
+				return;
 			}
 		} else {
 			return $this->redirectBack();

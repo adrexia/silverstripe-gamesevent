@@ -136,9 +136,11 @@ class GameSignupPage_Controller extends Page_Controller {
 		// If the user has no registration, redirect them to the registration page
 		if(!$reg){
 			if($register){
-				return $this->redirect($register->AbsoluteLink());
+				$this->redirect($register->AbsoluteLink());
+				return;
 			} else {
-				return $this->redirect($this->baseURL);
+				$this->redirect($this->baseURL);
+				return;
 			}
 		}
 
@@ -149,17 +151,17 @@ class GameSignupPage_Controller extends Page_Controller {
 		// If the user has already added games, redirect them to after submission
 		// @todo: allow users to edit submitted game choices
 		if($reg->PlayerGames()->Count() > 0){
-			return $this->redirect($this->Link('yourgames'));
+			$this->redirect($this->Link('yourgames'));
 		}
 
 		$fields = $this->GameSignupFields($reg);
 
-		$form = new Form (
+		$form = Form::create(
 			$this,
 			'Form',
 			$fields,
-			new FieldList(
-				new FormAction('addplayergames', 'Submit')
+			FieldList::create(
+				FormAction::create('addplayergames', 'Submit')
 			)
 		);
 
@@ -258,7 +260,8 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	public function addplayergames($data, Form $form) {
 		if($this->addPlayerGame($data, $form)) {
-			return $this->redirect($this->Link('yourgames'));
+			$this->redirect($this->Link('yourgames'));
+			return;
 		} else {
 			return $this->redirectBack();
 		}
@@ -353,7 +356,8 @@ class GameSignupPage_Controller extends Page_Controller {
 	public function yourgames() {
 		$reg = $this->getCurrentRegistration();
 		if(!$reg->PlayerGames()->Count() > 0){
-			return $this->redirect($this->Link());
+			$this->redirect($this->Link());
+			return;
 		}
 		return array (
 			'Title'   => "Your Games",

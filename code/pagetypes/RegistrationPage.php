@@ -91,7 +91,8 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			}
 
 
-			return $this->redirect($this->Link('afterregistration'));
+			$this->redirect($this->Link('afterregistration'));
+			return;
 		} else {
 			return $this->redirectBack();
 		}
@@ -146,7 +147,8 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	protected function indexProfile() {
 		if(!$this->AllowProfileEditing) {
 			if($this->AllowAdding && Injector::inst()->get('Member')->canCreate()) {
-				return $this->redirect($this->Link('add'));
+				$this->redirect($this->Link('add'));
+				return;
 			}
 
 			return Security::permissionFailure($this, _t(
