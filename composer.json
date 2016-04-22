@@ -11,8 +11,8 @@
 		}
 	],
 	"require": {
-		"silverstripe/framework": "~3.*",
-		"silverstripe/cms": "~3.*",
+		"silverstripe/framework": "*",
+		"silverstripe/cms": "*",
 		"mateusz/frontend": "*",
 		"ajshort/silverstripe-memberprofiles": "*",
 		"studiobonito/silverstripe-spamprotection-honeypot": "1.1.2"
