@@ -9,16 +9,16 @@ class GameListingPage extends Page {
 	public function Breadcrumbs($maxDepth = 20, $unlinked = false, $stopAtPageType = false, $showHidden = false) {
 		$page = $this;
 		$pages = array();
-		
+
 		while(
 			$page
-			&& (!$maxDepth || count($pages) < $maxDepth) 
+			&& (!$maxDepth || count($pages) < $maxDepth)
 			&& (!$stopAtPageType || $page->ClassName != $stopAtPageType)
 		) {
-			if($showHidden || $page->ShowInMenus || ($page->ID == $this->ID)) { 
+			if($showHidden || $page->ShowInMenus || ($page->ID == $this->ID)) {
 				$pages[] = $page;
 			}
-			
+
 			$page = $page->Parent;
 		}
 
@@ -34,21 +34,30 @@ class GameListingPage extends Page {
 				}
 			}
 		}
-		
+
 		$template = new SSViewer('BreadcrumbsTemplate');
-		
+
 		return $template->process($this->customise(new ArrayData(array(
 			'Pages' => new ArrayList(array_reverse($pages))
 		))));
 	}
 
-	public function getCurrentGames(){
+	public function getCurrentGames() {
 		$siteConfig = SiteConfig::current_site_config();
 
-		$items =  Game::get()->filter(array(
-			'Status'=> true,
-			'ParentID'=>$siteConfig->CurrentEventID
-		));
+		// show all if in draft mode
+		$mode = Versioned::get_reading_mode();
+
+		if($mode == 'Stage.Stage') {
+			$items = Game::get()->filter(array(
+				'ParentID'=>$siteConfig->CurrentEventID
+			));
+		} else {
+			$items = Game::get()->filter(array(
+				'Status'=> true,
+				'ParentID'=>$siteConfig->CurrentEventID
+			));
+		}
 
 		return $items;
 	}
@@ -65,7 +74,7 @@ class GameListingPage_Controller extends Page_Controller {
 		$items = $this->getCurrentGames();
 		$items->sort('Title','ASC');
 
-		// Apply pagination 
+		// Apply pagination
 		$list = new AjaxPaginatedList($items, $this->request);
 		$list->setPageLength($pageSize);
 		return $list;

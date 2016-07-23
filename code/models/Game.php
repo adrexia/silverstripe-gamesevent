@@ -253,6 +253,9 @@ class Game extends DataObject {
 	 * @return string
 	 */
 	public function getRoundTitle() {
+		if ($this->Session==0){
+			return 'unscheduled';
+		}
 		return 'round-' . $this->Session;
 	}
 
