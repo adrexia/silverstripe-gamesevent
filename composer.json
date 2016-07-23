@@ -15,6 +15,9 @@
 		"silverstripe/cms": "*",
 		"mateusz/frontend": "*",
 		"ajshort/silverstripe-memberprofiles": "*",
-		"studiobonito/silverstripe-spamprotection-honeypot": "*"
+		"studiobonito/silverstripe-spamprotection-honeypot": "*",
+		"silverstripe-australia/gridfieldextensions": "*",
+		"antons/switchfield": "*",
+		"milkyway-multimedia/ss-gridfield-utils": "*"
 	}
 }

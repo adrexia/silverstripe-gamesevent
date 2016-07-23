@@ -41,7 +41,6 @@ class Registration extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-
 		if($this->ParentID < 1) {
 			$event = Event::get()->byID($this->ParentID);
 		} else {
@@ -51,6 +50,8 @@ class Registration extends DataObject {
 		if(!$event) {
 			$event = Event::get()->byID($current);
 		}
+
+		$fields->removeByName('Sort');
 
 		$fields->insertAfter(HiddenField::create(
 			'ParentID',
@@ -101,6 +102,10 @@ class Registration extends DataObject {
 			'MemberEmail' => 'Email',
 			'NumberOfGames' =>'Number of Games'
 		);
+	}
+
+	public function getEditibleDisplayFields() {
+		return $this->getActiveEventDisplayFields();
 	}
 
 

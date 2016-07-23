@@ -30,12 +30,14 @@ class EventAdmin extends ModelAdmin {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		$gridField->getConfig()->getComponentByType('GridFieldDataColumns')->setDisplayFields(
+		$gridConf = $gridField->getConfig();
+
+		$gridConf->getComponentByType('GridFieldDataColumns')->setDisplayFields(
 			singleton($this->sanitiseClassName($this->modelClass))->getActiveEventDisplayFields()
 		);
 
-		$gridField->getConfig()->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
-		$gridField->getConfig()->getComponentByType('GridFieldExportButton')
+		$gridConf->getComponentByType('GridFieldPaginator')->setItemsPerPage(150);
+		$gridConf->getComponentByType('GridFieldExportButton')
 				->setExportColumns(
 					singleton($this->sanitiseClassName($this->modelClass))->getExportFields()
 				);
@@ -48,7 +50,20 @@ class EventAdmin extends ModelAdmin {
 
 		$gridField->setList($list);
 
-		$gridField->getConfig()->addComponent(new GridFieldOrderableRows());
+		$gridConf->addComponent(new GridFieldOrderableRows());
+
+		$gridConf->removeComponentsByType('GridFieldDeleteAction');
+		$gridConf->removeComponentsByType('GridFieldEditButton');
+		$gridConf->removeComponentsByType('GridFieldDataColumns');
+		$gridConf->addComponent($cols = new GridFieldEditableColumns());
+		$gridConf->addComponent(new GridFieldDeleteAction());
+		$gridConf->addComponent(new GridFieldButtonRow('after'));
+
+		$gridConf->addComponent(new GridFieldEditButton());
+		$gridConf->addComponent(new Milkyway\SS\GridFieldUtils\SaveAllButton('buttons-after-right'));
+
+		$cols->setDisplayFields(singleton($this->sanitiseClassName($this->modelClass))->getEditibleDisplayFields());
+
 
 		return $form;
 	}

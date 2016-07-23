@@ -67,9 +67,8 @@ class PlayerGame extends DataObject {
 			$preference = new DropdownField('Preference', 'Preference', $pref);
 			$preference->setEmptyString(' ');
 			$fields->insertAfter($preference, 'GameID');
-
-			$status = array(0=>"Pending/Declined", 1=>"Accepted");
-			$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Preference');
+			
+			$fields->insertAfter(new SwitchField('Status', 'Accepted?'), 'Preference');
 
 			$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
 			$player = new DropdownField('ParentID', 'Player', $reg);
@@ -231,6 +230,35 @@ class PlayerGame extends DataObject {
 
 		return $fieldsArray;
 	}
+
+	public function getEditibleDisplayFields() {
+		$fieldsArray = array(
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'getTitle'=>'Game',
+			'Preference'=>array(
+				'title' => 'Preference number',
+				'field' => 'ReadonlyField'
+			),
+			'GameSession'=>'Session',
+			'Favourite.Nice'=>'Favourite',
+			'Status' => array(
+				'title' => 'Accepted?',
+				'callback' => function($record, $column, $grid) {
+					$switch = CheckboxField::create($column);
+					return $switch;
+				}
+			),
+		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
+	}
+
+
 
 	public function getGameDisplayFields() {
 

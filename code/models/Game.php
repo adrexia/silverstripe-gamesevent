@@ -44,19 +44,9 @@ class Game extends DataObject {
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
 
-		$siteConfig = SiteConfig::current_site_config();
-		$current = $siteConfig->getCurrentEventID();
+		$fields->removeByName('Sort');
 
-		if($this->ParentID < 1){
-			$event = Event::get()->byID($current);
-		} else {
-			$event = Event::get()->byID($this->ParentID);
-		}
-
-		if(!$event) {
-			$event = Event::get()->byID($current);
-		}
-
+		$event = $event = $this->getEvent();
 
 		$parent = HiddenField::create(
 			'ParentID',
@@ -66,15 +56,7 @@ class Game extends DataObject {
 
 		$fields->insertAfter($parent, 'Details');
 
-		$sessions = array();
-		if($event){
-			for ($i = 1; $i <= $event->NumberOfSessions; $i++){
-				$sessions[$i] = $i;
-			}
-		}
-
-		$session = new DropdownField('Session', 'Session', $sessions);
-		$session->setEmptyString(' ');
+		$session = $this->getSessionDropdown();
 		$fields->insertAfter($session, 'Title');
 
 		$fields->insertAfter(
@@ -90,8 +72,7 @@ class Game extends DataObject {
 			'FacilitatorID'
 		);
 
-		$status = array(0=>"Pending", 1=>"Accepted");
-		$fields->insertBefore(new OptionsetField('Status', 'Status', $status), 'Title');
+		$fields->insertBefore(new SwitchField('Status', 'Accepted?'), 'Title');
 
 		$gridField = $fields->dataFieldByName("Players");
 
@@ -120,6 +101,62 @@ class Game extends DataObject {
 			'Status.Nice'=>'Accepted',
 			'CountCurrentPlayers' => 'Number of Players'
 		);
+	}
+
+	public function getEditibleDisplayFields() {
+		return array(
+			'Title'=>array(
+				'title' => 'Title',
+				'field' => 'ReadonlyField'
+			),
+			'Brief.FirstSentence'=>'Brief',
+			'MemberName' => 'Facilitator',
+			'Session' => array(
+				'title' => 'Session',
+				'callback' => function($record, $column, $grid) {
+					return $this->getSessionDropdown();
+				}
+			),
+			'Status' => array(
+				'title' => 'Accepted?',
+				'callback' => function($record, $column, $grid) {
+					$switch = CheckboxField::create($column);
+					return $switch;
+				}
+			),
+			'CountCurrentPlayers' => 'Number of Players'
+		);
+	}
+
+	public function getEvent() {
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
+
+		if($this->ParentID < 1) {
+			$event = Event::get()->byID($current);
+		} else {
+			$event = Event::get()->byID($this->ParentID);
+		}
+		if(!$event) {
+			$event = Event::get()->byID($current);
+		}
+
+		return $event;
+	}
+
+	public function getSessionDropdown() {
+		$event = $this->getEvent();
+		$sessions = array();
+		if($event){
+			for ($i = 1; $i <= $event->NumberOfSessions; $i++){
+				$sessions[$i] = $i;
+			}
+		}
+
+		$session = new DropdownField('Session', 'Session', $sessions);
+		$session->setEmptyString(' ');
+
+		return $session;
 	}
 
 
