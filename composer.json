@@ -15,6 +15,6 @@
 		"silverstripe/cms": "*",
 		"mateusz/frontend": "*",
 		"ajshort/silverstripe-memberprofiles": "*",
-		"studiobonito/silverstripe-spamprotection-honeypot": "1.1.2"
+		"studiobonito/silverstripe-spamprotection-honeypot": "*"
 	}
 }
