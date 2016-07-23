@@ -134,8 +134,8 @@ class GameSignupPage_Controller extends Page_Controller {
 		$register = RegistrationPage::get()->First();
 
 		// If the user has no registration, redirect them to the registration page
-		if(!$reg){
-			if($register){
+		if(!$reg) {
+			if($register) {
 				$this->redirect($register->AbsoluteLink());
 				return;
 			} else {
@@ -149,7 +149,7 @@ class GameSignupPage_Controller extends Page_Controller {
 		}
 
 		// If the user has already added games, redirect them to after submission
-		// @todo: allow users to edit submitted game choices
+		// @todo: allow users to edit submitted game choices if option enabled, and within 10 minutes
 		if($reg->PlayerGames()->Count() > 0){
 			$this->redirect($this->Link('yourgames'));
 		}
@@ -195,8 +195,12 @@ class GameSignupPage_Controller extends Page_Controller {
 		$reg = $this->getCurrentRegistration();
 
 		$fields->push(new HiddenField('RegistrationID', 'Reg', $reg->ID));
-		$fields->push($fav = new HiddenField('FavouriteID', 'Favourite'));
-		$fav->addExtraClass('favourite-id');
+
+		if (!$this->DisableFavourite()) {
+			$fields->push($fav = new HiddenField('FavouriteID', 'Favourite'));
+			$fav->addExtraClass('favourite-id');
+		}
+
 		$fields->push(new LiteralField('no-js','<p class="js-hide">This page works better with javascript. If you can\'t use javascript, rank the items below in your order of preference. 1 for your first choice, 2 for your second. Note, only the top ' . $prefNum . ' will be recorded</p>'));
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
@@ -293,7 +297,11 @@ class GameSignupPage_Controller extends Page_Controller {
 			}
 		}
 
-		$favouriteID = $data["FavouriteID"];
+		$favouriteID = false;
+
+		if (!$this->DisableFavourite()) {
+			$favouriteID = $data["FavouriteID"];
+		}
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
 
@@ -332,7 +340,7 @@ class GameSignupPage_Controller extends Page_Controller {
 				$playerGame->ParentID = $regID;
 				$playerGame->Preference = $gamePref;
 
-				if($favouriteID == $game->ID){
+				if($favouriteID == $game->ID) {
 					$playerGame->Favourite = true;
 				}
 
@@ -370,7 +378,7 @@ class GameSignupPage_Controller extends Page_Controller {
 	/*
 	 * @return GroupedList
 	 */
-	public function getGroupedPlayerGames(){
+	public function getGroupedPlayerGames() {
 		$reg = $this->getCurrentRegistration();
 
 		if(!$reg){
@@ -380,18 +388,29 @@ class GameSignupPage_Controller extends Page_Controller {
 		$playergames = $reg->PlayerGames();
 		$games = new ArrayList();
 
-		foreach($playergames as $playergame){
-			$games->push(new ArrayData(array(
+		foreach($playergames as $playergame) {
+
+			$data = array(
 				"Game" => $playergame->Game(),
 				"Preference" => $playergame->Preference,
 				"Favourite" => $playergame->Favourite,
 				"Status" => $playergame->Status,
 				"Session" => $playergame->Game()->Session
-			)));
+			);
+
+			if ($this->DisableFavourite()) {
+				unset($data['Favourite']);
+			}
+
+			$games->push(new ArrayData($data));
 		}
 
 		$result = $games->sort(array('Session' => 'ASC', 'Preference' => 'ASC'));
 
 		return GroupedList::create($result);
+	}
+
+	public function DisableFavourite() {
+		return $this->getCurrentEvent()->DisableFavourite;
 	}
 }

@@ -31,25 +31,16 @@ class PlayerGame extends DataObject {
 		$fields = parent::getCMSFields();
 		$fields->removeByName('Sort');
 
-		$siteConfig = SiteConfig::current_site_config();
-		$current = $siteConfig->getCurrentEventID();
+		$event = $this->getEvent();
 
-		if($this->Event()->ID) {
-			$event = $this->Event();
-		} else if($this->Parent()->ParentID > 0) {
-			$event = Event::get()->byID($this->Parent()->ParentID);
-		} else {
-			$event = Event::get()->byID($current);
-		}
-
-		if($event){
+		if($event) {
 			$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
 		} else {
 			$prefNum = 2;
 		}
 
 		$pref = array();
-		for ($i = 1; $i <= $prefNum; $i++){
+		for ($i = 1; $i <= $prefNum; $i++) {
 			$pref[$i] = $i;
 		}
 
@@ -65,7 +56,11 @@ class PlayerGame extends DataObject {
 		$player->setEmptyString(' ');
 		$fields->insertAfter($player, 'Status');
 
-		$fields->insertAfter($fields->dataFieldByName('Favourite'), 'Status');
+		if (!$event->DisableFavourite) {
+			$fields->insertAfter($fields->dataFieldByName('Favourite'), 'Status');
+		} else {
+			$fields->removeByName('Favourite');
+		}
 
 		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
 
@@ -83,6 +78,7 @@ class PlayerGame extends DataObject {
 
 	/**
 	 * Set eventID to match parent's event ID or current event (as a backup)
+	 * We need this to always stay in sync with our parentID's event, so write everytime
 	 */
 	public function onBeforeWrite() {
 		parent::onBeforeWrite();
@@ -90,15 +86,17 @@ class PlayerGame extends DataObject {
 		$siteConfig = SiteConfig::current_site_config();
 		$current = $siteConfig->getCurrentEventID();
 
-		if($this->Parent()->ParentID < 1) {
-			$this->EventID = $current;
-		} else {
+		if($this->Parent()->ParentID > 0) {
 			$this->EventID = $this->Parent()->ParentID;
+		} else {
+			$this->EventID = $current;
 		}
+
 	}
 
 	public function getExportFields() {
-		return array(
+
+		$fieldsArray = array(
 			'Game.Title'=>'Game',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
@@ -107,10 +105,25 @@ class PlayerGame extends DataObject {
 			'Favourite.Nice'=>'Favourite',
 			'GameSession'=>'Session',
 		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
 	}
 
-	public function getEvent(){
-		return $this->Parent()->Parent()->ID;
+	public function getEvent() {
+		$siteConfig = SiteConfig::current_site_config();
+		$current = $siteConfig->getCurrentEventID();
+
+		if($this->Event()->ID) {
+			return $this->Event();
+		} else if($this->Parent()->ParentID > 0) {
+			return Event::get()->byID($this->Parent()->ParentID);
+		} else {
+			return Event::get()->byID($current);
+		}
 	}
 
 	public function getTitle() {
@@ -139,7 +152,8 @@ class PlayerGame extends DataObject {
 	}
 
 	public function getActiveEventDisplayFields() {
-		return array(
+
+		$fieldsArray = array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Title'=>'Game',
@@ -148,10 +162,17 @@ class PlayerGame extends DataObject {
 			'Favourite.Nice'=>'Favourite',
 			'NiceStatus'=>'Status'
 		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
 	}
 
 	public function getGameDisplayFields() {
-		return array(
+
+		$fieldsArray = array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Preference'=>'Preference Number',
@@ -159,21 +180,44 @@ class PlayerGame extends DataObject {
 			'Favourite.Nice'=>'Favourite',
 			'NiceStatus'=>'Status'
 		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
 	}
 
+	public function getPlayerDisplayFields() {
+		$fieldsArray = array(
+			'Title'=>'Game',
+			'Preference'=>'Preference',
+			'GameSession'=>'Session',
+			'Favourite.Nice'=>'Favourite',
+			'NiceStatus'=>'Status'
+		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
+	}
+
+
 	public function canCreate($member = null) {
-		return $this->Parent()->canCreate($member);
+		return Permission::check('EVENTS_CREATE');
 	}
 
 	public function canEdit($member = null) {
-		return $this->Parent()->canEdit($member);
+		return Permission::check('EVENTS_EDIT');
 	}
 
 	public function canDelete($member = null) {
-		return $this->Parent()->canDelete($member);
+		return Permission::check('EVENTS_DELETE');
 	}
 
 	public function canView($member = null) {
-		return $this->Parent()->canView($member);
+		return Permission::check('EVENTS_VIEW');
 	}
 }

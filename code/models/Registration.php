@@ -67,7 +67,7 @@ class Registration extends DataObject {
 				'PlayerGames',
 				'Games',
 				$this->PlayerGames(),
-				$config =GridFieldConfig_RelationEditor::create());
+				$config = GridFieldConfig_RelationEditor::create());
 				$gridField->setModelClass('PlayerGame');
 
 
@@ -79,6 +79,11 @@ class Registration extends DataObject {
 
 			$config->addComponent($export = new GridFieldExportButton('before'));
 			$export->setExportColumns(singleton("PlayerGame")->getExportFields());
+
+			$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(
+				singleton("PlayerGame")->getPlayerDisplayFields()
+			);
+
 
 			$fields->addFieldToTab('Root.PlayerGames', $gridField);
 		}
@@ -142,18 +147,18 @@ class Registration extends DataObject {
 
 
 	public function canCreate($member = null) {
-		return $this->Parent()->canCreate($member);
+		return Permission::check('EVENTS_CREATE');
 	}
 
 	public function canEdit($member = null) {
-		return $this->Parent()->canEdit($member);
+		return Permission::check('EVENTS_EDIT');
 	}
 
 	public function canDelete($member = null) {
-		return $this->Parent()->canDelete($member);
+		return Permission::check('EVENTS_DELETE');
 	}
 
 	public function canView($member = null) {
-		return $this->Parent()->canView($member);
+		return Permission::check('EVENTS_VIEW');
 	}
 }

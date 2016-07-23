@@ -257,18 +257,18 @@ class Game extends DataObject {
 	}
 
 	public function canCreate($member = null) {
-		return $this->Parent()->canCreate($member);
+		return Permission::check('EVENTS_CREATE');
 	}
 
 	public function canEdit($member = null) {
-		return $this->Parent()->canEdit($member);
+		return Permission::check('EVENTS_EDIT');
 	}
 
 	public function canDelete($member = null) {
-		return $this->Parent()->canDelete($member);
+		return Permission::check('EVENTS_DELETE');
 	}
 
 	public function canView($member = null) {
-		return $this->Parent()->canView($member);
+		return Permission::check('EVENTS_VIEW');
 	}
 }
