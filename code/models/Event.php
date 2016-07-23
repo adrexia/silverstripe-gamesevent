@@ -8,7 +8,8 @@ class Event extends DataObject implements PermissionProvider {
 		'PreferencesPerSession'=>'Int',
 		'MealOption'=>'Boolean',
 		'Accommodation'=>'Int',
-		'DisableFavourite'=>'Boolean'
+		'DisableFavourite'=>'Boolean',
+		'EnableLuckyDip'=>'Boolean'
 	);
 
 	private static $has_one = array(
@@ -39,6 +40,9 @@ class Event extends DataObject implements PermissionProvider {
 
 		$fav = $fields->dataFieldByName('DisableFavourite');
 		$fav->setDescription('Disable the ability for users to mark a game as their favourite');
+
+		$luckyDip = $fields->dataFieldByName('EnableLuckyDip');
+		$luckyDip->setDescription('Allows extra "Lucky Dip" options during game selection');
 
 		return $fields;
 	}

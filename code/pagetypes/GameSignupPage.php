@@ -194,20 +194,20 @@ class GameSignupPage_Controller extends Page_Controller {
 
 		$reg = $this->getCurrentRegistration();
 
-		$fields->push(new HiddenField('RegistrationID', 'Reg', $reg->ID));
+		$fields->push(HiddenField::create('RegistrationID', 'Reg', $reg->ID));
 
 		if (!$this->DisableFavourite()) {
-			$fields->push($fav = new HiddenField('FavouriteID', 'Favourite'));
+			$fields->push($fav = HiddenField::create('FavouriteID', 'Favourite'));
 			$fav->addExtraClass('favourite-id');
 		}
 
-		$fields->push(new LiteralField('no-js','<p class="js-hide">This page works better with javascript. If you can\'t use javascript, rank the items below in your order of preference. 1 for your first choice, 2 for your second. Note, only the top ' . $prefNum . ' will be recorded</p>'));
+		$fields->push(LiteralField::create('no-js','<p class="js-hide">This page works better with javascript. If you can\'t use javascript, rank the items below in your order of preference. 1 for your first choice, 2 for your second. Note, only the top ' . $prefNum . ' will be recorded</p>'));
 
 		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
 			$evenOdd = $session % 2 == 0 ? 'even': 'odd';
 			$fieldset = '<fieldset id="round'.$session.'" class="preference-group preference-'.$prefNum.' data-preference-select="preference-select-group">';
 
-			$fields->push(new LiteralField('Heading_'.$session, '<h5>Round '.$session.' preferences</h5>'. $fieldset));
+			$fields->push(LiteralField::create('Heading_'.$session, '<h5>Round '.$session.' preferences</h5>'. $fieldset));
 
 			$games = Game::get()->filter(array(
 				'Session' => $session,
@@ -218,7 +218,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			$i = 1;
 			foreach ($games as $game){
 
-				$gameOptions = new NumericField("GameID_".$game->ID, '');
+				$gameOptions = NumericField::create("GameID_".$game->ID, '');
 				$gameOptions->setValue($i)
 						->setRightTitle($game->Title)
 						->setAttribute('type','number')
@@ -231,16 +231,29 @@ class GameSignupPage_Controller extends Page_Controller {
 
 			}
 
+			if($this->EnableLuckyDip()) {
+				// Add not playing option
+				$gameOptions = NumericField::create("LuckyDip_".$session, '');
+				$gameOptions->setValue($i)
+						->setRightTitle("Lucky dip")
+						->setAttribute('type','number')
+						->addExtraClass('small-input js-hide-input isfinal');
+
+				$fields->push($gameOptions);
+
+				$i++;
+			}
+
 			// Add not playing option
-			$gameOptions = new NumericField("NotPlaying_".$session, '');
+			$gameOptions = NumericField::create("NotPlaying_".$session, '');
 			$gameOptions->setValue($i)
 					->setRightTitle("No game (or Facilitating)")
 					->setAttribute('type','number')
-					->addExtraClass('small-input js-hide-input not-playing');
+					->addExtraClass('small-input js-hide-input not-playing isfinal');
 
 			$fields->push($gameOptions);
 
-			$fields->push(new LiteralField('fieldset', '</fieldset>'));
+			$fields->push(LiteralField::create('fieldset', '</fieldset>'));
 
 		}
 
@@ -271,6 +284,16 @@ class GameSignupPage_Controller extends Page_Controller {
 		}
 	}
 
+	public function handleExistingGames($reg) {
+		// @todo - handle a proper 'change game' case
+		if($reg->PlayerGames()->Count() > 0) {
+			foreach($reg->PlayerGames() as $playerGame) {
+				$reg->PlayerGames()->removeByID($playerGame->ID);
+				$playerGame->delete();
+			}
+		}
+	}
+
 	/**
 	 * Attempts to save a game
 	 *
@@ -278,24 +301,17 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	protected function addPlayerGame($data,$form) {
 
-		$fields = $form->Fields();
 		$event = $this->getCurrentEvent();
 		$currentID = $event->ID;
 
 		$regID = $data['RegistrationID'];
 		$reg = Registration::get()->byID($regID);
 
-		if (!$reg){
+		if (!$reg) {
 			return false;
 		}
 
-		// @todo - handle a proper 'change game' case
-		if($reg->PlayerGames()->Count() > 0){
-			foreach($reg->PlayerGames() as $playerGame){
-				$reg->PlayerGames()->removeByID($playerGame->ID);
-				$playerGame->delete();
-			}
-		}
+		$this->handleExistingGames($reg);
 
 		$favouriteID = false;
 
@@ -303,9 +319,16 @@ class GameSignupPage_Controller extends Page_Controller {
 			$favouriteID = $data["FavouriteID"];
 		}
 
-		for ($session = 1; $session <= $event->NumberOfSessions; $session++){
+		for ($session = 1; $session <= $event->NumberOfSessions; $session++) {
 
 			$notPlay = (int)$data["NotPlaying_".$session];
+
+			$luckyDip = false;
+
+			if($this->EnableLuckyDip()) {
+				$luckyDip = (int)$data["LuckyDip_".$session]; //gets position/value of luckydip entry
+			}
+
 			$prefNum = $event->PreferencesPerSession;
 
 			$games = Game::get()->filter(array(
@@ -315,45 +338,102 @@ class GameSignupPage_Controller extends Page_Controller {
 			));
 
 			// Alter prefnumber so it stops when it encounters "Not Playing"
-			if($notPlay != 0 && $notPlay < $prefNum){
+			if($notPlay != 0 && $notPlay < $prefNum) {
 				$prefNum = $notPlay;
 			}
 
-			// if first choice is to not play, don't create any games
+			// if first choice is to not play, don't create any games this session
 			if($notPlay === 1) {
 				continue;
 			}
 
-			foreach ($games as $game){
-				$gamePref = (int)$data["GameID_".$game->ID];
+			if($luckyDip) {
+				$this->writeLuckyDip($luckyDip, $prefNum, $regID, $session, $form);
 
-				// only store games with a preference higher than our threshold
-				if ($gamePref > $prefNum || !isset($gamePref)) {
-					continue;
-				}
-
-				$playerGame = PlayerGame::create();
-
-				$form->saveInto($playerGame);
-
-				$playerGame->GameID = $game->ID;
-				$playerGame->ParentID = $regID;
-				$playerGame->Preference = $gamePref;
-
-				if($favouriteID == $game->ID) {
-					$playerGame->Favourite = true;
-				}
-
-				try {
-					$playerGame->write();
-				} catch(ValidationException $e) {
-					$form->sessionMessage($e->getResult()->message(), 'bad');
+				// Alter prefnumber so it stops when it encounters our lucky dip
+				if($luckyDip < $prefNum) {
+					$prefNum = $luckyDip;
 				}
 			}
 
+			$this->writeSessionChoices($games, $data, $prefNum, $regID, $session, $favouriteID, $form);
 		}
 
-		return $playerGame;
+		return true;
+	}
+
+	/**
+	 * Write all games for this session that are less than our current number of preferences to write
+	 *
+	 * @param DataList | $games - A list of Games for this session
+	 * @param Array | $data - submitted form data
+	 * @param Int | $prefNum - the number of preferences allowed
+	 * @param Int | $regID - the id of the registration this choice belongs to
+	 * @param Int | $session - the session number of the lucky dip option
+	 * @param Int | $favouriteID
+	 * @param Form | $form
+	 */
+	public function writeSessionChoices($games, $data, $prefNum, $regID, $session, $favouriteID, $form) {
+		foreach ($games as $game) {
+			$gamePref = (int)$data["GameID_".$game->ID]; //get value of field, this should be our preference number
+
+			// only store games with a preference higher than our threshold
+			if ($gamePref > $prefNum || !isset($gamePref)) {
+				continue;
+			}
+
+			$playerGame = PlayerGame::create();
+
+			$form->saveInto($playerGame);
+
+			$playerGame->GameID = $game->ID;
+			$playerGame->ParentID = $regID;
+			$playerGame->Preference = $gamePref;
+			$playerGame->Session = $session;
+
+			if($favouriteID == $game->ID) {
+				$playerGame->Favourite = true;
+			}
+
+			try {
+				$playerGame->write();
+			} catch(ValidationException $e) {
+				$form->sessionMessage($e->getResult()->message(), 'bad');
+			}
+		}
+	}
+
+	/**
+	 * A Lucky dip is a player game where the game itself hasn't been chosen.
+	 * The player would like a game, but is happy to have an organiser vhoose for them.
+	 * This means we need to write a player game that has a registration, but no game assigned
+	 *
+	 * @param Int | $luckyDipPref - the value of the lucky dip option (choice number),
+	 * @param Int | $prefNum - the number of preferences allowed
+	 * @param Int | $regID - the id of the registration this choice belongs to
+	 * @param Int | $session - the session number of the lucky dip option
+	 * @param Form | $form
+	 */
+	public function writeLuckyDip($luckyDipPref, $prefNum, $regID, $session, $form) {
+
+		// only store luckydip with a preference higher than our threshold
+		if ($luckyDipPref > $prefNum) {
+			return;
+		}
+
+		$playerGame = PlayerGame::create();
+
+		$form->saveInto($playerGame);
+
+		$playerGame->ParentID = $regID;
+		$playerGame->Preference = $luckyDipPref;
+		$playerGame->Session = $session;
+
+		try {
+			$playerGame->write();
+		} catch(ValidationException $e) {
+			$form->sessionMessage($e->getResult()->message(), 'bad');
+		}
 	}
 
 	/**
@@ -391,11 +471,11 @@ class GameSignupPage_Controller extends Page_Controller {
 		foreach($playergames as $playergame) {
 
 			$data = array(
-				"Game" => $playergame->Game(),
+				"GameTitle" => $playergame->getTitle(),
 				"Preference" => $playergame->Preference,
 				"Favourite" => $playergame->Favourite,
 				"Status" => $playergame->Status,
-				"Session" => $playergame->Game()->Session
+				"Session" => $playergame->GameSession()
 			);
 
 			if ($this->DisableFavourite()) {
@@ -412,5 +492,9 @@ class GameSignupPage_Controller extends Page_Controller {
 
 	public function DisableFavourite() {
 		return $this->getCurrentEvent()->DisableFavourite;
+	}
+
+	public function EnableLuckyDip() {
+		return $this->getCurrentEvent()->EnableLuckyDip;
 	}
 }

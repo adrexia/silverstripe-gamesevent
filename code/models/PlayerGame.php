@@ -5,18 +5,19 @@ class PlayerGame extends DataObject {
 		'Preference'=>'Int',
 		'Status'=>'Boolean',
 		'Favourite'=>'Boolean',
-		'Sort'=>'Int'
+		'Sort'=>'Int',
+		'Session'=>'Int'
 	);
 
 	private static $has_one = array(
-		'Game'=>'Game',
 		'Parent' => 'Registration',
+		'Game'=>'Game',
 		'Event'=>"Event"
 	);
 
 
 	private static $summary_fields = array(
-		'Title'=>'Game',
+		'getTitle'=>'Game',
 		'Preference'=>'Preference',
 		'GameSession'=>'Session',
 		'Favourite.Nice'=>'Favourite',
@@ -25,7 +26,7 @@ class PlayerGame extends DataObject {
 
 	public static $plural_name = "Player Games";
 
-	public static $default_sort = 'Sort, Status DESC, Preference';
+	public static $default_sort = 'Sort, Session, Preference, Status DESC';
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
@@ -33,45 +34,75 @@ class PlayerGame extends DataObject {
 
 		$event = $this->getEvent();
 
-		if($event) {
-			$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
+		// Only show session and event fields unless we have a saved session
+		// Games need to be filtered by the session number
+		if($this->GameSession()) {
+
+			$fields->replaceField('Session', ReadonlyField::create('Session'));
+
+			// Filter the object by the saved session ID
+			$fields->replaceField('GameID', DropdownField::create(
+				'GameID',
+				'Game',
+				Game::get()->filter('Session', $this->GameSession())->map('ID', 'Title')
+			));
+
+
+			if($event->EnableLuckyDip) {
+				$game = $fields->dataFieldByName('GameID');
+				$game->setEmptyString('Lucky dip');
+			}
+
+			if($event) {
+				$prefNum = $event->PreferencesPerSession ? $event->PreferencesPerSession : 2;
+			} else {
+				$prefNum = 2;
+			}
+
+			$pref = array();
+			for ($i = 1; $i <= $prefNum; $i++) {
+				$pref[$i] = $i;
+			}
+
+			$preference = new DropdownField('Preference', 'Preference', $pref);
+			$preference->setEmptyString(' ');
+			$fields->insertAfter($preference, 'GameID');
+
+			$status = array(0=>"Pending/Declined", 1=>"Accepted");
+			$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Preference');
+
+			$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
+			$player = new DropdownField('ParentID', 'Player', $reg);
+			$player->setEmptyString(' ');
+			$fields->insertAfter($player, 'Session');
+
+			if (!$event->DisableFavourite) {
+				$fields->insertAfter($fields->dataFieldByName('Favourite'), 'Status');
+			} else {
+				$fields->removeByName('Favourite');
+			}
+
+			$event = HiddenField::create(
+				'EventID',
+				'Event',
+				$event->ID
+			);
+
+			$fields->insertAfter($event, 'GameID');
+
 		} else {
-			$prefNum = 2;
-		}
 
-		$pref = array();
-		for ($i = 1; $i <= $prefNum; $i++) {
-			$pref[$i] = $i;
-		}
+			$fields->insertBefore(LiteralField::create('Unsaved',
+				'<p class="message">Save this record with a session number to edit other fields</p>'),
+				'Session'
+			);
 
-		$preference = new DropdownField('Preference', 'Preference', $pref);
-		$preference->setEmptyString(' ');
-		$fields->insertAfter($preference, 'GameID');
-
-		$status = array(0=>"Pending/Declined", 1=>"Accepted");
-		$fields->insertAfter(new OptionsetField('Status', 'Status', $status), 'Preference');
-
-		$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
-		$player = new DropdownField('ParentID', 'Player', $reg);
-		$player->setEmptyString(' ');
-		$fields->insertAfter($player, 'Status');
-
-		if (!$event->DisableFavourite) {
-			$fields->insertAfter($fields->dataFieldByName('Favourite'), 'Status');
-		} else {
+			$fields->removeByName('Preference');
+			$fields->removeByName('Status');
 			$fields->removeByName('Favourite');
+			$fields->removeByName('GameID');
+			$fields->removeByName('ParentID');
 		}
-
-		$fields->insertAfter($fields->dataFieldByName('ParentID'), 'GameID');
-
-		$event = HiddenField::create(
-			'EventID',
-			'Event',
-			$event->ID
-		);
-
-		$fields->insertAfter($event, 'GameID');
-
 
 		return $fields;
 	}
@@ -92,12 +123,16 @@ class PlayerGame extends DataObject {
 			$this->EventID = $current;
 		}
 
+		if(!$this->Session && $this->Game()) {
+			$this->Session = $this->Game()->Session;
+		}
+
 	}
 
 	public function getExportFields() {
 
 		$fieldsArray = array(
-			'Game.Title'=>'Game',
+			'getTitle'=>'Game',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Preference'=>'Preference',
@@ -126,12 +161,39 @@ class PlayerGame extends DataObject {
 		}
 	}
 
+	/**
+	 * CMS readable title
+	 * If Lucky dip is enabled and the Game field is empty, then this is a lucky dip record
+	 * @return String
+	 */
 	public function getTitle() {
-		return $this->Game()->Title;
+		if ($this->Game()->ID) {
+			return $this->Game()->Title;
+		}
+
+		if($this->getEvent()->EnableLuckyDip) {
+			return 'Lucky dip';
+		}
+
+		return 'No game';
 	}
 
+	/**
+	 * If set, return the Session value, otherwise get session from a game
+	 *
+	 * Note: getting the session from the game is mostly for backwards compatibility reasons
+	 * with older saved records.
+	 *
+	 * @return String | Boolean - false if no session and no game
+	 */
 	public function GameSession() {
-		return $this->Game()->Session;
+		if($this->Session) {
+			return $this->Session;
+		} else if($this->Game()) {
+			return $this->Game()->Session;
+		}
+
+		return false;
 	}
 
 
@@ -156,7 +218,7 @@ class PlayerGame extends DataObject {
 		$fieldsArray = array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
-			'Title'=>'Game',
+			'getTitle'=>'Game',
 			'Preference'=>'Preference Number',
 			'GameSession'=>'Session',
 			'Favourite.Nice'=>'Favourite',
@@ -190,7 +252,7 @@ class PlayerGame extends DataObject {
 
 	public function getPlayerDisplayFields() {
 		$fieldsArray = array(
-			'Title'=>'Game',
+			'getTitle'=>'Game',
 			'Preference'=>'Preference',
 			'GameSession'=>'Session',
 			'Favourite.Nice'=>'Favourite',
