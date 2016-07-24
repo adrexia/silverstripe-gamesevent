@@ -78,10 +78,10 @@ class Game extends DataObject {
 
 		$fields->insertBefore(new SwitchField('Status', 'Accepted?'), 'Title');
 
-		$gridField = $fields->dataFieldByName("Players");
+		$playerGrid = $fields->dataFieldByName("Players");
 
-		if ($gridField) {
-			$config = $gridField->getConfig();
+		if ($playerGrid) {
+			$config = $playerGrid->getConfig();
 			$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(
 				singleton("PlayerGame")->getGameDisplayFields()
 			);
@@ -91,6 +91,33 @@ class Game extends DataObject {
 
 			$config->addComponent($export = new GridFieldExportButton('before'));
 			$export->setExportColumns(singleton("PlayerGame")->getExportFields());
+		}
+
+		$hasPlayedGrid = $fields->dataFieldByName("PreviousPlayers");
+
+		if ($hasPlayedGrid) {
+			$fields->removeByName('PreviousPlayers');
+			$fields->addFieldToTab(
+				'Root.PreviousPlayers',
+				LiteralField::create(
+					'HavePlayedDesc',
+					'<p class="message">These players have already played this game.</p>'
+				)
+			);
+
+			$fields->addFieldToTab(
+				'Root.PreviousPlayers',
+				$hasPlayedGrid
+			);
+
+			$config = $hasPlayedGrid->getConfig();
+			$config->getComponentByType('GridFieldDataColumns')->setDisplayFields(
+				singleton("Registration")->getActiveEventDisplayFields()
+			);
+
+			$config->removeComponentsByType('GridFieldPaginator');
+			$config->removeComponentsByType('GridFieldAddNewButton');
+			$config->removeComponentsByType('GridFieldPageCount');
 		}
 
 		return $fields;
