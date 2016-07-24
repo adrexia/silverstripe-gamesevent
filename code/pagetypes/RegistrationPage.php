@@ -64,8 +64,8 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	 */
 	public function register($data, Form $form) {
 		if($member = $this->addMember($form)) {
-			$this->addRegistration($form, $member);
-
+			$register = $this->addRegistration($form, $member);
+			$this->sendAppEmail($register);
 
 			if(!$this->RequireApproval && $this->EmailType != 'Validation' && !$this->AllowAdding) {
 				$member->logIn();
@@ -114,8 +114,6 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			$form->sessionMessage($e->getResult()->message(), 'bad');
 			return;
 		}
-
-		$this->sendAppEmail($register);
 
 		return $register;
 	}
@@ -366,12 +364,6 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 
 		try {
 			$member->write();
-		} catch(ValidationException $e) {
-			$form->sessionMessage($e->getResult()->message(), 'bad');
-			return $this->redirectBack();
-		}
-
-		try {
 			$registration->write();
 		} catch(ValidationException $e) {
 			$form->sessionMessage($e->getResult()->message(), 'bad');
@@ -382,9 +374,25 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			'Your details have been updated.',
 			'good'
 		);
-		return $this->redirectBack();
+
+		$this->sendAppEmail($registration);
+
+		if ($this->RegistrationRedirect) {
+			if ($this->PostRegistrationTargetID) {
+				$this->redirect($this->PostRegistrationTarget()->Link());
+				return;
+			}
+
+			if ($sessionTarget = Session::get('MemberProfile.REDIRECT')) {
+				Session::clear('MemberProfile.REDIRECT');
+				if (Director::is_site_url($sessionTarget)) {
+					$this->redirect($sessionTarget);
+					return;
+				}
+			}
+		}
+
+		$this->redirect($this->Link('afterregistration'));
 	}
-
-
 
 }
