@@ -67,7 +67,7 @@ class PlayerGame extends DataObject {
 			$preference = new DropdownField('Preference', 'Preference', $pref);
 			$preference->setEmptyString(' ');
 			$fields->insertAfter($preference, 'GameID');
-			
+
 			$fields->insertAfter(new SwitchField('Status', 'Accepted?'), 'Preference');
 
 			$reg = Registration::get()->filter(array('ParentID' => $event->ID))->map('ID', "Title");
@@ -132,6 +132,24 @@ class PlayerGame extends DataObject {
 
 		$fieldsArray = array(
 			'getTitle'=>'Game',
+			'MemberName' => 'Player',
+			'MemberEmail' => 'Email',
+			'Preference'=>'Preference',
+			'NiceStatus'=>'Status',
+			'Favourite.Nice'=>'Favourite',
+			'GameSession'=>'Session',
+		);
+
+		if ($this->getEvent()->DisableFavourite) {
+			unset($fieldsArray['Favourite.Nice']);
+		}
+
+		return $fieldsArray;
+	}
+
+	public function getExcelExportFields() {
+		$fieldsArray = array(
+			'Title'=>'Game',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'Preference'=>'Preference',

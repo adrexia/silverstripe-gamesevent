@@ -212,8 +212,6 @@ class Game extends DataObject {
 		);
 	}
 
-
-
 	public function onBeforeWrite() {
 		parent::onBeforeWrite();
 		$this->Genre = strtolower($this->Genre);

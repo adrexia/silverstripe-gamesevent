@@ -140,8 +140,8 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	/**
 	 * Generate the export and return the filepath if successful
 	 *
-	 * @param Register | csv formated string
-	 * @return file
+	 * @param Register | object to write to file
+	 * @return filepath
 	 */
 	public function handleFile($register) {
 		$formatter = new CsvDataFormatter();
@@ -288,7 +288,7 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 		if($event->MealOption) {
 			$meals = new CompositeField(array(
 				new CheckboxField('Meals', 'I want meals provided'),
-				new TextField('SpecialDietryInfo')
+				new TextField('SpecialDietryInfo', 'Special Dietary Info')
 			));
 
 			$meals->addExtraClass('meals-field');

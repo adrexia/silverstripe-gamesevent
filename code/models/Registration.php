@@ -96,7 +96,7 @@ class Registration extends DataObject {
 		return $fields;
 	}
 
-	public function getTitle(){
+	public function getTitle() {
 		return $this->getMemberName();
 	}
 
@@ -125,7 +125,7 @@ class Registration extends DataObject {
 			'PlayWith'=>'Play with',
 			'NotPlayWith'=>'Not play with',
 			'Meals'=>"Meals",
-			'SpecialDietryInfo'=>'Special dietry info',
+			'SpecialDietryInfo'=>'Special dietary info',
 			'Accommodation'=>'Accommodation',
 			'ExtraDetail'=>'Extra detail',
 			'HasPlayedString'=>'Has played',

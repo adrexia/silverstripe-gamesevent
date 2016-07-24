@@ -143,7 +143,7 @@ class GameSignupPage_Controller extends Page_Controller {
 
 		// If the user has already added games, redirect them to after submission
 		// @todo: allow users to edit submitted game choices if option enabled, and within 10 minutes
-		if($reg->PlayerGames()->Count() > 0){
+		if($reg->PlayerGames()->Count() > 0) {
 			$this->redirect($this->Link('yourgames'));
 		}
 
@@ -292,11 +292,108 @@ class GameSignupPage_Controller extends Page_Controller {
 	 * Handles adding new games
 	 */
 	public function addplayergames($data, Form $form) {
-		if($this->addPlayerGame($data, $form)) {
+		if($reg = $this->addPlayerGame($data, $form)) {
+
+			$this->handleAppEmails($reg);
 			$this->redirect($this->Link('yourgames'));
 			return;
 		} else {
 			return $this->redirectBack();
+		}
+	}
+
+	/**
+	 * Send an email with two csv attachments:
+	 * * the HasPlayed Game list for this registration
+	 * * the Player game selections for this player
+	 *
+	 * @param Registration | $reg
+	 */
+	public function handleAppEmails($reg) {
+
+		$siteConfig = SiteConfig::current_site_config();
+		$address = $reg->Parent()->AppEmail;
+		$currentID = $reg->Parent()->ID;
+
+		if(!$address) {
+			return;
+		}
+
+		$hasPlayedData = $this->getHasPlayed($reg);
+		$hasPlayedFile = $this->handleFile($hasPlayedData, "playedgames.csv", $reg);
+
+		$playerGames = PlayerGame::get()->filter(
+			'ParentID', $reg->ID
+		);
+
+		$formatter = new CsvDataFormatter();
+		$playerGameData = $formatter->convertDataObjectSet($playerGames);
+		$playerGamesFile = $this->handleFile($playerGameData, "gameselections.csv", $reg);
+
+		$email = Email::create();
+		$email->attachFile($playerGamesFile);
+		$email->attachFile($hasPlayedFile);
+		$email->setTo($address);
+		$email->setFrom('it@nzlarps.org');
+		$email->setSubject("Chimera games for " . $reg->getMemberName());
+		$email->setBody('Game details are attached');
+		$email->send();
+	}
+
+	/**
+	 * Compile custom hasplayed records as a csv formatted string
+	 *
+	 * @param Registration | $reg
+	 * @return String
+	 */
+	public function getHasPlayed($reg) {
+		$hasPlayed = $reg->HasPlayed();
+
+		$result = '"RegID", "MemberEmail", "GameID", "GameTitle"';
+
+		$id = $reg->ID;
+		$email = $reg->getMemberEmail();
+
+		foreach($hasPlayed as $game) {
+			$gID = $game->ID;
+			$title = $game->Title;
+
+			$result .= '"'. $id . '","' . $email . '","' . $gID . '","'. $title .'"' . "\n";
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Generate the export and return the filepath if successful
+	 *
+	 * @param Data | $fileData csv formatted string
+	 * @param String | $filename
+	 * @param Registraton | $reg user registration
+	 * @return filepath
+	 */
+	public function handleFile($fileData, $fileName, $reg) {
+		$ID = $reg->ID;
+		$email = $reg->Email;
+
+		$folder = "/tmp/$ID-$email/";
+		$filepath = $folder . $fileName;
+
+		try {
+			if(!file_exists($folder)) {
+				if (!mkdir($folder, 0700)){
+					die('Failed to create export folder');
+				}
+			}
+
+			$file = fopen($filepath, "w");
+			fwrite($file, $fileData);
+			fclose($file);
+
+			return $filepath;
+
+		} catch(Exception $e) {
+			return false;
 		}
 	}
 
@@ -375,9 +472,9 @@ class GameSignupPage_Controller extends Page_Controller {
 			$this->writeSessionChoices($games, $data, $prefNum, $regID, $session, $favouriteID, $form);
 		}
 
-		$this->writeHasPlayed($data, $reg, $form);
+		$this->writeHasPlayed($reg, $form);
 
-		return true;
+		return $reg;
 	}
 
 
