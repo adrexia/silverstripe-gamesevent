@@ -4,11 +4,7 @@
  */
 
 class RegistrationPage extends MemberProfilePage {
-
 	private static $hide_ancestor = "MemberProfilePage";
-	private static $has_one = array(
-		'Registration'=> 'Registration'
-	);
 }
 
 class RegistrationPage_Controller extends MemberProfilePage_Controller {
@@ -90,7 +86,6 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 				}
 			}
 
-
 			$this->redirect($this->Link('afterregistration'));
 			return;
 		} else {
@@ -120,8 +115,66 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 			return;
 		}
 
+		$this->sendAppEmail($register);
+
 		return $register;
 	}
+
+	public function sendAppEmail($register) {
+		$siteConfig = SiteConfig::current_site_config();
+		$address = $register->Parent()->AppEmail;
+
+		if(!$address) {
+			return;
+		}
+
+		$file = $this->handleFile($register);
+
+		$email = Email::create();
+		$email->attachFile($file);
+		$email->setTo($address);
+		$email->setFrom('it@nzlarps.org');
+		$email->setSubject("Chimera registration for " . $register->getMemberName());
+		$email->setBody('Registration details are attached');
+		$email->send();
+	}
+
+	/**
+	 * Generate the export and return the filepath if successful
+	 *
+	 * @param Register | csv formated string
+	 * @return file
+	 */
+	public function handleFile($register) {
+		$formatter = new CsvDataFormatter();
+
+		$fileData = $formatter->convertDataObject($register);
+
+		$ID = $register->ID;
+		$email = $register->Email;
+		$fileName = "registration.csv";
+
+		$folder = "/tmp/$ID-$email/";
+		$filepath = $folder . $fileName;
+
+		try {
+			if(!file_exists($folder)) {
+				if (!mkdir($folder, 0700)){
+					die('Failed to create export folder');
+				}
+			}
+
+			$file = fopen($filepath, "w");
+			fwrite($file, $fileData);
+			fclose($file);
+
+			return $filepath;
+
+		} catch(Exception $e) {
+			return false;
+		}
+	}
+
 
 
 	public function getRegistration($memberID) {

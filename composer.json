@@ -18,6 +18,7 @@
 		"studiobonito/silverstripe-spamprotection-honeypot": "*",
 		"silverstripe-australia/gridfieldextensions": "*",
 		"antons/switchfield": "*",
-		"milkyway-multimedia/ss-gridfield-utils": "*"
+		"milkyway-multimedia/ss-gridfield-utils": "*",
+		"firebrandhq/silverstripe-excel-export": "*"
 	}
 }

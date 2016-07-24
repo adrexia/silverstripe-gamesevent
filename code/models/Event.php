@@ -9,7 +9,8 @@ class Event extends DataObject implements PermissionProvider {
 		'MealOption'=>'Boolean',
 		'Accommodation'=>'Int',
 		'DisableFavourite'=>'Boolean',
-		'EnableLuckyDip'=>'Boolean'
+		'EnableLuckyDip'=>'Boolean',
+		'AppEmail'=>'Varchar(255)'
 	);
 
 	private static $has_one = array(
@@ -43,6 +44,10 @@ class Event extends DataObject implements PermissionProvider {
 
 		$luckyDip = $fields->dataFieldByName('EnableLuckyDip');
 		$luckyDip->setDescription('Allows extra "Lucky Dip" options during game selection');
+
+		$fields->addFieldToTab('Root.Main', $email = EmailField::create('AppEmail'));
+
+		$email->setDescription('Will recieve all registration data in csv files, as it comes in');
 
 		return $fields;
 	}
