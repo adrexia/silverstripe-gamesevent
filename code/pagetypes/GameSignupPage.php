@@ -22,15 +22,8 @@ class GameSignupPage extends Page {
 		$fields->insertAfter($gameFormContent = new HTMLEditorField('GameLiveContent', 'Game selection form detail'),'Content');
 		$gameFormContent->setRows(20);
 
-		$regOpen = new CheckboxField('OpenGameReg', '');
-		$fields->insertBefore($cField = new CompositeField(array(
-			$label = new LabelField('OpenGameRegLabel','Open game selection (all)'),
-			$regOpen
-		)),'Content');
-
-		$cField->addExtraClass('field');
-		$regOpen->addExtraClass('mts');
-		$label->addExtraClass('left');
+		$regOpen = new SwitchField('OpenGameReg', 'Open game selection (to all)');
+		$fields->insertBefore($regOpen, 'Content');
 
 		$groupsMap = array();
 		foreach(Group::get() as $group) {
