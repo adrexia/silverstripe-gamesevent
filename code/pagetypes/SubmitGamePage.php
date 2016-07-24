@@ -8,11 +8,18 @@ class SubmitGamePage extends Page {
 
 	private static $db = array(
 		'LoggedOutMessage'=>'HTMLText',
-		'AfterSubmissionContent'=>'HTMLText'
+		'AfterSubmissionContent'=>'HTMLText',
+		'OpenSubmissions'=>'Boolean'
 	);
 
 	public function getCMSFields() {
 		$fields = parent::getCMSFields();
+
+		$content = $fields->dataFieldByName('Content');
+		$content->setRows(20);
+
+		$fields->insertBefore($submitted = new SwitchField('OpenSubmissions'), 'Content');
+
 
 		$fields->insertAfter($submitted = new HtmlEditorField('AfterSubmissionContent'), 'Content');
 		$submitted->setRows(20);
@@ -35,7 +42,7 @@ class SubmitGamePage_Controller extends Page_Controller {
 		'edit' => true
 	);
 
-	/*
+	/**
 	 * Allow the owners of games to edit games
 	 * If page is reached by non owners, redirect back to the submit form
 	 */
