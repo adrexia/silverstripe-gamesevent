@@ -24,6 +24,10 @@ class Game extends DataObject {
 		'Players'=>'PlayerGame'
 	);
 
+	private static $belongs_many_many = array(
+		'PreviousPlayers'=>'Registration'
+	);
+
 	private static $summary_fields = array(
 		'Title'=>'Title',
 		'Brief.FirstSentence'=>'Brief',
@@ -159,20 +163,24 @@ class Game extends DataObject {
 		return $session;
 	}
 
+	public function HasPlayedString() {
+		return $this->customise(array('Data'=>$this->PreviousPlayers()))->renderWith('PlayedList');
+	}
 
 	public function getExportFields() {
 		return array(
-			'Title'=>'Title',
-			'Session'=>'Session',
-			'NumPlayers'=>'Number of players (max)',
-			'Restriction'=>'Restriction',
-			'Genre'=>'Genre',
-			'Costuming'=>'Costuming',
-			'Status.Nice'=>'Accepted',
+			'Title' => 'Title',
+			'Session' => 'Session',
+			'NumPlayers' => 'Number of players (max)',
+			'Restriction' => 'Restriction',
+			'Genre' => 'Genre',
+			'Costuming' => 'Costuming',
+			'Status.Nice' => 'Accepted',
 			'MemberName' => 'Facilitator (owner)',
-			'FacilitatorText'=>'Facilitator (Multiple)',
-			'Brief'=>'Brief',
-			'Details'=>'Details',
+			'FacilitatorText' => 'Facilitator (Multiple)',
+			'Brief' => 'Brief',
+			'Details' => 'Details',
+			'HasPlayedString' => 'Already Played',
 			'Parent.Title' => 'Event'
 		);
 	}

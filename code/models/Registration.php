@@ -23,6 +23,10 @@ class Registration extends DataObject {
 		'PlayerGames'=>'PlayerGame'
 	);
 
+	private static $many_many = array(
+		'HasPlayed'=>'Game'
+	);
+
 	private static $summary_fields = array(
 		'MemberName'=>'Title',
 		'MemberEmail' => 'Email',
@@ -108,6 +112,9 @@ class Registration extends DataObject {
 		return $this->getActiveEventDisplayFields();
 	}
 
+	public function HasPlayedString() {
+		return $this->customise(array('Data'=>$this->HasPlayed()))->renderWith('PlayedList');
+	}
 
 	public function getExportFields() {
 		return array(
@@ -121,13 +128,13 @@ class Registration extends DataObject {
 			'SpecialDietryInfo'=>'Special dietry info',
 			'Accommodation'=>'Accommodation',
 			'ExtraDetail'=>'Extra detail',
+			'HasPlayedString'=>'Has played',
 			'Parent.Title' => 'Event'
 		);
 	}
 
-	public function NumberOfGames(){
+	public function NumberOfGames() {
 		if(PlayerGame::get()){
-
 			return PlayerGame::get()->filter("ParentID", $this->ID)->Count();
 		} else {
 			return "none";
@@ -149,7 +156,6 @@ class Registration extends DataObject {
 	public function setPublicFields($fields) {
 		$this->owner->setField('PublicFieldsRaw', serialize($fields));
 	}
-
 
 	public function canCreate($member = null) {
 		return Permission::check('EVENTS_CREATE');

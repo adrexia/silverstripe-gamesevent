@@ -257,6 +257,29 @@ class GameSignupPage_Controller extends Page_Controller {
 
 		}
 
+		$allgames = Game::get()->filter(array(
+			'ParentID' => $currentID,
+			'Status' => true
+		));
+
+		$allgamesMap = $allgames->map("ID", "Title")->toArray();
+		asort($allgamesMap);
+
+		// tag input field
+		$fields->push($tagfield = new Listboxfield(
+			'HasPlayed',
+			'I have already played these games'
+		));
+
+		$tagfield->setMultiple(true)
+				->setSource($allgamesMap)
+				->setAttribute(
+					'data-placeholder',
+					'Select games'
+				);
+
+		$tagfield->addExtraClass('js-select2 ptl');
+
 		return $fields;
 	}
 
@@ -359,7 +382,27 @@ class GameSignupPage_Controller extends Page_Controller {
 			$this->writeSessionChoices($games, $data, $prefNum, $regID, $session, $favouriteID, $form);
 		}
 
+		$this->writeHasPlayed($data, $reg, $form);
+
 		return true;
+	}
+
+
+	/**
+	 * Write HasPlayed data for this registration
+	 *
+	 * @param Registration | $reg - the id of the registration this choice belongs to
+	 * @param Form | $form
+	 */
+	public function writeHasPlayed($reg, $form) {
+
+		$form->saveInto($reg);
+
+		try {
+			$reg->write();
+		} catch(ValidationException $e) {
+			$form->sessionMessage($e->getResult()->message(), 'bad');
+		}
 	}
 
 	/**
