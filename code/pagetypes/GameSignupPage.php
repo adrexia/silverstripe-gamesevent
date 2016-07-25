@@ -358,7 +358,7 @@ class GameSignupPage_Controller extends Page_Controller {
 			$gID = $game->ID;
 			$title = $game->Title;
 
-			$result .= '"'. $id . '","' . $email . '","' . $gID . '","'. $title .'"' . "\n";
+			$result .= PHP_EOL .'"'. $id . '","' . $email . '","' . $gID . '","'. $title .'"';
 		}
 
 		return $result;
