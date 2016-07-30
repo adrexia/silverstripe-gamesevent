@@ -146,10 +146,10 @@ class RegistrationPage_Controller extends MemberProfilePage_Controller {
 	public function handleFile($register) {
 		$formatter = new CsvDataFormatter();
 
-		$fileData = $formatter->convertDataObject($register);
-
 		$ID = $register->ID;
-		$email = $register->Email;
+		$email = $register->getMemberEmail();
+
+		$fileData = $formatter->convertDataObject($register);
 		$fileName = "registration.csv";
 
 		$folder = "/tmp/$ID-$email/";

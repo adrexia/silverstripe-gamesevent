@@ -117,7 +117,7 @@ class Registration extends DataObject {
 	}
 
 	public function getExportFields() {
-		return array(
+		$fields = array(
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'AttendingWholeEvent.Nice'=>'Attending whole event',
@@ -131,6 +131,18 @@ class Registration extends DataObject {
 			'HasPlayedString'=>'Has played',
 			'Parent.Title' => 'Event'
 		);
+
+		$this->extend('updateExportFields', $fields);
+
+		return $fields;
+	}
+
+	public function getExcelExportFields() {
+		$fields = $this->getExportFields();
+
+		$this->extend('updateExcelExportFields', $fields);
+
+		return $fields;
 	}
 
 	public function NumberOfGames() {
