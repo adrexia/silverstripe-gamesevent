@@ -6,6 +6,7 @@
 class GameSignupPage extends Page {
 
 	private static $icon = "gamesevent/images/gamesignup.png";
+	private static $hide_preview_panel = true;
 
 	private static $db = array(
 		'OpenGameReg'=>'Boolean',
