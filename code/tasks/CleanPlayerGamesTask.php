@@ -1,6 +1,6 @@
 <?php
 
-class ProcessMembersTask extends BuildTask {
+class CleanPlayerGamesTask extends BuildTask {
 
 	protected $title = "Clean up PlayerGames";
 
