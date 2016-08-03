@@ -577,7 +577,7 @@ class GameSignupPage_Controller extends Page_Controller {
 	 */
 	public function yourgames() {
 		$reg = $this->getCurrentRegistration();
-		if(!$reg->PlayerGames()->Count() > 0){
+		if(!$reg || !$reg->PlayerGames()->Count() > 0) {
 			$this->redirect($this->Link());
 			return;
 		}
