@@ -28,6 +28,7 @@ class Registration extends DataObject {
 	);
 
 	private static $summary_fields = array(
+		'Created.Nice'=>'Date Registered',
 		'MemberName'=>'Title',
 		'MemberEmail' => 'Email',
 		'NumberOfGames' =>'Number of Games',
@@ -100,8 +101,9 @@ class Registration extends DataObject {
 		return $this->getMemberName();
 	}
 
-	public function getActiveEventDisplayFields(){
+	public function getActiveEventDisplayFields() {
 		return array(
+			'Created.Nice'=>'Date Registered',
 			'MemberName' => 'Name',
 			'MemberEmail' => 'Email',
 			'NumberOfGames' =>'Number of Games'
@@ -118,6 +120,7 @@ class Registration extends DataObject {
 
 	public function getExportFields() {
 		$fields = array(
+			'Created.Nice'=>'Date Registered',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'AttendingWholeEvent.Nice'=>'Attending whole event',

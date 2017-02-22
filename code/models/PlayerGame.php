@@ -17,6 +17,7 @@ class PlayerGame extends DataObject {
 
 
 	private static $summary_fields = array(
+		'Created.Nice'=>'Date Chosen',
 		'getTitle'=>'Game',
 		'Preference'=>'Preference',
 		'GameSession'=>'Session',
@@ -131,6 +132,7 @@ class PlayerGame extends DataObject {
 	public function getExportFields() {
 
 		$fieldsArray = array(
+			'Created.Nice'=>'Date Chosen',
 			'getTitle'=>'Game',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
@@ -149,6 +151,7 @@ class PlayerGame extends DataObject {
 
 	public function getExcelExportFields() {
 		$fieldsArray = array(
+			'Created.Nice'=>'Date Chosen',
 			'Title'=>'Game',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
@@ -233,6 +236,7 @@ class PlayerGame extends DataObject {
 	public function getActiveEventDisplayFields() {
 
 		$fieldsArray = array(
+			'Created.Nice'=>'Date Chosen',
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'getTitle'=>'Game',
@@ -254,6 +258,7 @@ class PlayerGame extends DataObject {
 			'MemberName' => 'Player',
 			'MemberEmail' => 'Email',
 			'getTitle'=>'Game',
+			'Created.Nice'=>'Date Chosen',
 			'Preference'=>array(
 				'title' => 'Preference number',
 				'field' => 'ReadonlyField'
@@ -266,7 +271,7 @@ class PlayerGame extends DataObject {
 					$switch = CheckboxField::create($column);
 					return $switch;
 				}
-			),
+			)
 		);
 
 		if ($this->getEvent()->DisableFavourite) {
